@@ -8,6 +8,8 @@
     "migrate-latest": "knex migrate:latest",
     "migrate-rollback": "knex migrate:rollback",
     "setup-dbs": "psql -f ./db/setup.sql",
+    "seed-dev": "npm run setup-dbs && knex seed:run",
+    "seed-test": "npm run setup-dbs && NODE_ENV=test knex seed:run",
     "seed": "knex seed:run",
     "test": "jest"
   },
