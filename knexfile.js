@@ -6,25 +6,25 @@ const baseConfig = {
     directory: './db/migrations',
   },
   seeds: {
-    directory: './db/seeds'
-  }
+    directory: './db/seeds',
+  },
 };
 
 const customConfig = {
   development: {
     connection: {
       database: 'nc_news',
-    username: 'niko',
-    password: 'password'
-    }
+      // username: 'niko',
+      // password: 'password'
+    },
   },
   test: {
     connection: {
       database: 'nc_news_test',
-    username: 'niko',
-    password: 'password'
-    }
-  }
+      // username: 'niko',
+      // password: 'password'
+    },
+  },
 };
 
 module.exports = { ...customConfig[ENV], ...baseConfig };
