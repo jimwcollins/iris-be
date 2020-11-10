@@ -1,9 +1,8 @@
 const connection = require('../db/connection');
 
 const fetchTopic = () => {
-  return connection
+  return connection('topics')
     .select('slug', 'description')
-    .from('topics')
     .then((topics) => {
       return { topics };
     });
