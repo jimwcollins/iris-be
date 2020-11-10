@@ -1,5 +1,5 @@
 const { get } = require('../app');
-const { fetchArticleById } = require('../models/articles');
+const { fetchArticleById, delArticleById } = require('../models/articles');
 
 const getArticleById = (req, res, next) => {
   const articleId = req.params.articleId;
@@ -11,4 +11,12 @@ const getArticleById = (req, res, next) => {
     .catch(next);
 };
 
-module.exports = { getArticleById };
+const deleteArticleById = (req, res, next) => {
+  const articleId = req.params.articleId;
+
+  delArticleById(articleId).then(() => {
+    res.status(204).send({ msg: 'Article deleted' });
+  });
+};
+
+module.exports = { getArticleById, deleteArticleById };

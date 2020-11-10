@@ -11,6 +11,7 @@ const fetchArticleById = (articleId) => {
       const commentPromise = connection('comments')
         .select('*')
         .where('article_id', '=', articleId);
+
       return Promise.all([commentPromise, returnedArticle]);
     })
     .then(([comments, returnedArticle]) => {
@@ -23,4 +24,8 @@ const fetchArticleById = (articleId) => {
     });
 };
 
-module.exports = { fetchArticleById };
+const delArticleById = (articleId) => {
+  console.log(`Deleting article ${articleId}`);
+};
+
+module.exports = { fetchArticleById, delArticleById };

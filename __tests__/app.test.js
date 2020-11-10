@@ -53,47 +53,55 @@ describe('NC_News API', () => {
   });
 
   describe('Testing /api/articles/:article_id', () => {
-    it('GET responds with 200 ok and correct article object', () => {
-      return request(app)
-        .get('/api/articles/1')
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.article).toHaveProperty('author', 'butter_bridge');
-          expect(body.article).toHaveProperty(
-            'title',
-            'Living in the shadow of a great man'
-          );
-          expect(body.article).toHaveProperty('article_id', 1);
-          expect(body.article).toHaveProperty(
-            'body',
-            'I find this existence challenging'
-          );
-          expect(body.article).toHaveProperty('topic', 'mitch');
-          expect(body.article).toHaveProperty(
-            'created_at',
-            '2018-11-15T12:21:54.171Z'
-          );
-          expect(body.article).toHaveProperty('votes', 100);
-          expect(body.article).toHaveProperty('comment_count', 13);
-        });
+    describe('GET method', () => {
+      it('GET responds with 200 ok and correct article object', () => {
+        return request(app)
+          .get('/api/articles/1')
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article).toHaveProperty('author', 'butter_bridge');
+            expect(body.article).toHaveProperty(
+              'title',
+              'Living in the shadow of a great man'
+            );
+            expect(body.article).toHaveProperty('article_id', 1);
+            expect(body.article).toHaveProperty(
+              'body',
+              'I find this existence challenging'
+            );
+            expect(body.article).toHaveProperty('topic', 'mitch');
+            expect(body.article).toHaveProperty(
+              'created_at',
+              '2018-11-15T12:21:54.171Z'
+            );
+            expect(body.article).toHaveProperty('votes', 100);
+            expect(body.article).toHaveProperty('comment_count', 13);
+          });
+      });
+
+      it('GET responds with 400 "Bad request" for invalid article ID', () => {
+        return request(app)
+          .get('/api/articles/Notanumber')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Bad request');
+          });
+      });
+
+      it('GET responds with 404 "No user found" for article that doesn\'t exist', () => {
+        return request(app)
+          .get('/api/articles/1000')
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Article not found');
+          });
+      });
     });
 
-    it('GET responds with 400 "Bad request" for invalid article ID', () => {
-      return request(app)
-        .get('/api/articles/Notanumber')
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Bad request');
-        });
-    });
-
-    it('GET responds with 404 "No user found" for article that doesn\'t exist', () => {
-      return request(app)
-        .get('/api/articles/1000')
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Article not found');
-        });
+    describe('DELETE method', () => {
+      it('DELETE responds with 204 for succesful deletion', () => {
+        return request(app).delete('/api/articles/1').expect(204);
+      });
     });
   });
 
