@@ -6,9 +6,9 @@ const {
 } = require('../data/index.js');
 
 const {
-  dateFormatter,
+  formatArticles,
   getArticleRef,
-  formatComment,
+  formatComments,
 } = require('../utils/data-manipulation.js');
 
 exports.seed = (knex) => {
@@ -22,22 +22,15 @@ exports.seed = (knex) => {
       return knex('users').insert(userData).returning('*');
     })
     .then((usersRows) => {
-      const formattedArticleData = dateFormatter(articleData);
+      const formattedArticleData = formatArticles(articleData);
 
       return knex('articles').insert(formattedArticleData).returning('*');
     })
     .then((articleRows) => {
-
-      const formattedTimeCommentData = dateFormatter(commentData);
-
       const articleRef = getArticleRef(articleRows);
 
-      const formattedCommentData = formatComment(
-        formattedTimeCommentData,
-        articleRef
-      );
+      const formattedCommentData = formatComments(commentData, articleRef);
 
       return knex('comments').insert(formattedCommentData).returning('*');
-    })
-    // .then((commentRows) => {});
+    });
 };

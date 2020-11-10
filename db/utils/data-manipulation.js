@@ -1,10 +1,15 @@
 // extract any functions you are using to manipulate your data, into this file
 
-const dateFormatter = (articles) => {
-  return articles.map((article) => {
-    const newObj = { ...article };
-    newObj.created_at = new Date(article.created_at).toISOString();
-    return newObj;
+const formatTimestamp = (time) => {
+  return new Date(time).toISOString();
+};
+
+const formatArticles = (articles) => {
+  return articles.map(({ created_at, ...restOfArticle }) => {
+    return {
+      ...restOfArticle,
+      created_at: formatTimestamp(created_at),
+    };
   });
 };
 
@@ -16,15 +21,22 @@ const getArticleRef = (articleData) => {
   return articleRef;
 };
 
-const formatComment = (commentData, articleRef) => {
-  return commentData.map((comment) => {
-    const newObj = { ...comment };
-    newObj.article_id = articleRef[comment.belongs_to];
-    delete newObj.belongs_to;
-    newObj.author = comment.created_by;
-    delete newObj.created_by;
-    return newObj;
-  });
+const formatComments = (commentData, articleRef) => {
+  return commentData.map(
+    ({ belongs_to, created_by, created_at, ...restOfComment }) => {
+      return {
+        article_id: articleRef[belongs_to],
+        author: created_by,
+        ...restOfComment,
+        created_at: formatTimestamp(created_at),
+      };
+    }
+  );
 };
 
-module.exports = { dateFormatter, getArticleRef, formatComment };
+module.exports = {
+  formatTimestamp,
+  formatArticles,
+  getArticleRef,
+  formatComments,
+};
