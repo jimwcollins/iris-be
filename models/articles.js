@@ -11,6 +11,7 @@ const fetchArticleById = (articleId) => {
       if (!returnedArticle)
         return Promise.reject({ status: 404, msg: 'Article not found' });
 
+      // Break out comment_count so we can convert to int
       const { comment_count, ...restOfArticle } = returnedArticle;
 
       return {
@@ -52,4 +53,28 @@ const updateArticleVote = (articleId, { inc_votes }) => {
     });
 };
 
-module.exports = { fetchArticleById, removeArticleById, updateArticleVote };
+const insertCommentByArticleId = (articleId, { username, body }) => {
+  if (!username && !body)
+    return Promise.reject({ status: 400, msg: 'Invalid post data' });
+
+  if (!username || typeof username !== 'string')
+    return Promise.reject({ status: 400, msg: 'Invalid username data' });
+
+  if (!body) return Promise.reject({ status: 400, msg: 'Invalid body data' });
+
+  return connection('comments')
+    .insert({ author: username, article_id: articleId, body: body })
+    .returning('*')
+    .then(([insertedComment]) => {
+      return {
+        comment: insertedComment,
+      };
+    });
+};
+
+module.exports = {
+  fetchArticleById,
+  removeArticleById,
+  updateArticleVote,
+  insertCommentByArticleId,
+};

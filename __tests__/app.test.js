@@ -259,6 +259,105 @@ describe('NC_News API', () => {
     });
   });
 
+  describe.only('Testing /api/articles/:article_id/comments', () => {
+    describe('POST method', () => {
+      it('POST responds with 201 and new comment', () => {
+        return request(app)
+          .post('/api/articles/5/comments')
+          .send({
+            username: 'rogersop',
+            body: 'Where is Diane? Who is Diane? Who is anyone, really?',
+          })
+          .expect(201)
+          .then(({ body }) => {
+            expect(body.comment).toHaveProperty('comment_id', 19);
+            expect(body.comment).toHaveProperty('author', 'rogersop');
+            expect(body.comment).toHaveProperty('article_id', 5);
+            expect(body.comment).toHaveProperty('votes', 0);
+            expect(body.comment).toHaveProperty('created_at');
+            expect(body.comment).toHaveProperty(
+              'body',
+              'Where is Diane? Who is Diane? Who is anyone, really?'
+            );
+          });
+      });
+
+      it('POST responds with "404 Invalid ID or user" for non-existent article', () => {
+        return request(app)
+          .post('/api/articles/1500/comments')
+          .send({
+            username: 'rogersop',
+            body: 'Where is Diane? Who is Diane? Who is anyone, really?',
+          })
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid ID or user');
+          });
+      });
+
+      it('POST responds with "404 Invalid ID or user" if username not in DB', () => {
+        return request(app)
+          .post('/api/articles/5/comments')
+          .send({
+            username: 'diane',
+            body: 'Where is Diane? Who is Diane? Who is anyone, really?',
+          })
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid ID or user');
+          });
+      });
+
+      it('POST returns error message for invalid username key', () => {
+        return request(app)
+          .post('/api/articles/5/comments')
+          .send({
+            user: 'rogersop',
+            body: 'Where is Diane? Who is Diane? Who is anyone, really?',
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid username data');
+          });
+      });
+
+      it('POST returns error message for invalid body key', () => {
+        return request(app)
+          .post('/api/articles/5/comments')
+          .send({
+            username: 'rogersop',
+            notbody: 'Where is Diane? Who is Diane? Who is anyone, really?',
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid body data');
+          });
+      });
+
+      it('POST returns error message for missing body', () => {
+        return request(app)
+          .post('/api/articles/5/comments')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid post data');
+          });
+      });
+
+      it('POST returns error message for incorrect username format', () => {
+        return request(app)
+          .post('/api/articles/5/comments')
+          .send({
+            username: 42,
+            body: 'Where is Diane? Who is Diane? Who is anyone, really?',
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid username data');
+          });
+      });
+    });
+  });
+
   describe('/missingRoute', () => {
     it('status 404 - All methods', () => {
       const allMethods = ['get', 'post', 'delete', 'patch', 'put'];

@@ -3,9 +3,13 @@ const send404 = (req, res, next) => {
 };
 
 const handlePSQLErrors = (err, req, res, next) => {
-  const badReqCode = ['42703', '22P02'];
-  if (badReqCode.includes(err.code)) {
+  const badReqCodes = ['42703', '22P02'];
+  const invalidIdCodes = ['23503'];
+
+  if (badReqCodes.includes(err.code)) {
     res.status(400).send({ msg: 'Bad request' });
+  } else if (invalidIdCodes.includes(err.code)) {
+    res.status(404).send({ msg: 'Invalid ID or user' });
   } else {
     next(err);
   }

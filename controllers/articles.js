@@ -3,6 +3,7 @@ const {
   fetchArticleById,
   removeArticleById,
   updateArticleVote,
+  insertCommentByArticleId,
 } = require('../models/articles');
 
 const getArticleById = (req, res, next) => {
@@ -35,4 +36,19 @@ const patchArticleById = (req, res, next) => {
     .catch(next);
 };
 
-module.exports = { getArticleById, deleteArticleById, patchArticleById };
+const postCommentByArticleId = (req, res, next) => {
+  const articleId = req.params.articleId;
+  const articleData = req.body;
+  insertCommentByArticleId(articleId, articleData)
+    .then((insertedComment) => {
+      res.status(201).send(insertedComment);
+    })
+    .catch(next);
+};
+
+module.exports = {
+  getArticleById,
+  deleteArticleById,
+  patchArticleById,
+  postCommentByArticleId,
+};
