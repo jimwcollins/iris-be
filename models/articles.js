@@ -53,6 +53,29 @@ const updateArticleVote = (articleId, { inc_votes }) => {
     });
 };
 
+const fetchCommentsByArticleId = (articleId) => {
+  return connection('comments')
+    .select('comments.*')
+    .rightJoin('articles', 'articles.article_id', 'comments.article_id')
+    .where('articles.article_id', '=', articleId)
+    .then((comments) => {
+      if (comments.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: 'No articles found with this ID',
+        });
+      } else if (comments.length === 1 && comments[0].comment_id === null) {
+        return {
+          comments: 'No comments found for this article',
+        };
+      } else {
+        return {
+          comments,
+        };
+      }
+    });
+};
+
 const insertCommentByArticleId = (articleId, { username, body }) => {
   if (!username && !body)
     return Promise.reject({ status: 400, msg: 'Invalid post data' });
@@ -76,5 +99,6 @@ module.exports = {
   fetchArticleById,
   removeArticleById,
   updateArticleVote,
+  fetchCommentsByArticleId,
   insertCommentByArticleId,
 };

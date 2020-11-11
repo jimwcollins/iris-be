@@ -259,7 +259,7 @@ describe('NC_News API', () => {
     });
   });
 
-  describe.only('Testing /api/articles/:article_id/comments', () => {
+  describe('Testing /api/articles/:article_id/comments', () => {
     describe('POST method', () => {
       it('POST responds with 201 and new comment', () => {
         return request(app)
@@ -353,6 +353,48 @@ describe('NC_News API', () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe('Invalid username data');
+          });
+      });
+    });
+
+    describe.only('GET method', () => {
+      it('GET should return 200 and an array of comments', () => {
+        return request(app)
+          .get('/api/articles/5/comments')
+          .expect(200)
+          .then(({ body }) => {
+            console.log('Return comments:', body);
+            expect(Array.isArray(body.comments)).toBe(true);
+            expect(body.comments.length).toBe(2);
+            body.comments.forEach((comment) => {
+              expect(comment).toEqual({
+                comment_id: expect.any(Number),
+                author: expect.any(String),
+                article_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                body: expect.any(String),
+              });
+            });
+          });
+      });
+
+      it('should throw an error for incorrect user ID', () => {
+        return request(app)
+          .get('/api/articles/5000/comments')
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe('No articles found with this ID');
+          });
+      });
+
+      it('should inform user if there are no comments for this article', () => {
+        return request(app)
+          .get('/api/articles/3/comments')
+          .expect(200)
+          .then(({ body }) => {
+            console.log('Return comments:', body);
+            expect(body.comments).toBe('No comments found for this article');
           });
       });
     });

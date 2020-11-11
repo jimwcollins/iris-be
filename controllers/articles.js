@@ -3,6 +3,7 @@ const {
   fetchArticleById,
   removeArticleById,
   updateArticleVote,
+  fetchCommentsByArticleId,
   insertCommentByArticleId,
 } = require('../models/articles');
 
@@ -36,6 +37,15 @@ const patchArticleById = (req, res, next) => {
     .catch(next);
 };
 
+const getCommentsByArticleId = (req, res, next) => {
+  const articleId = req.params.articleId;
+  fetchCommentsByArticleId(articleId)
+    .then((returnedComments) => {
+      res.status(200).send(returnedComments);
+    })
+    .catch(next);
+};
+
 const postCommentByArticleId = (req, res, next) => {
   const articleId = req.params.articleId;
   const articleData = req.body;
@@ -50,5 +60,6 @@ module.exports = {
   getArticleById,
   deleteArticleById,
   patchArticleById,
+  getCommentsByArticleId,
   postCommentByArticleId,
 };
