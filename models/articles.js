@@ -24,8 +24,16 @@ const fetchArticleById = (articleId) => {
     });
 };
 
-const delArticleById = (articleId) => {
-  console.log(`Deleting article ${articleId}`);
+const removeArticleById = (articleId) => {
+  return connection('articles')
+    .del()
+    .where('article_id', '=', articleId)
+    .then((numRowsDeleted) => {
+      if (numRowsDeleted === 0)
+        return Promise.reject({ status: 404, msg: 'Article not found' });
+
+      return;
+    });
 };
 
-module.exports = { fetchArticleById, delArticleById };
+module.exports = { fetchArticleById, removeArticleById };

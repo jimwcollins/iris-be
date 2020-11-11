@@ -102,6 +102,52 @@ describe('NC_News API', () => {
       it('DELETE responds with 204 for succesful deletion', () => {
         return request(app).delete('/api/articles/1').expect(204);
       });
+
+      it('DELETE responds with 204 and removes article from DB', () => {
+        return request(app)
+          .delete('/api/articles/1')
+          .expect(204)
+          .then(() => {
+            return connection('articles')
+              .select('*')
+              .where('article_id', '=', 1);
+          })
+          .then((articles) => {
+            expect(articles.length).toBe(0);
+          });
+      });
+
+      it('DELETE removes article from DB and deletes associated comments', () => {
+        return request(app)
+          .delete('/api/articles/1')
+          .expect(204)
+          .then(() => {
+            return connection('comments')
+              .select('*')
+              .where('article_id', '=', 1);
+          })
+          .then((comments) => {
+            expect(comments.length).toBe(0);
+          });
+      });
+
+      it("DELETE returns 404 for an article that does't exist", () => {
+        return request(app)
+          .delete('/api/articles/1000')
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Article not found');
+          });
+      });
+
+      it('DELETE returns 400 for an invalid article ID', () => {
+        return request(app)
+          .delete('/api/articles/NotANumber')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Bad request');
+          });
+      });
     });
   });
 
