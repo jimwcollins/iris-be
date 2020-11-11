@@ -2,23 +2,21 @@ const connection = require('../db/connection');
 
 const fetchArticleById = (articleId) => {
   return connection('articles')
-    .select('*')
-    .where('article_id', '=', articleId)
+    .select('articles.*')
+    .count('comments.comment_id AS comment_count')
+    .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+    .where('articles.article_id', '=', articleId)
+    .groupBy('articles.article_id')
     .then(([returnedArticle]) => {
       if (!returnedArticle)
         return Promise.reject({ status: 404, msg: 'Article not found' });
 
-      const commentPromise = connection('comments')
-        .select('*')
-        .where('article_id', '=', articleId);
+      const { comment_count, ...restOfArticle } = returnedArticle;
 
-      return Promise.all([commentPromise, returnedArticle]);
-    })
-    .then(([comments, returnedArticle]) => {
       return {
         article: {
-          ...returnedArticle,
-          comment_count: comments.length,
+          ...restOfArticle,
+          comment_count: parseInt(comment_count, 10),
         },
       };
     });
