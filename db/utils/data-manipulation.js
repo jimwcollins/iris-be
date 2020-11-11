@@ -1,14 +1,14 @@
 // extract any functions you are using to manipulate your data, into this file
 
-const formatTimestamp = (time) => {
-  return new Date(time).toISOString();
+const getTimestamp = (time) => {
+  return new Date(time);
 };
 
 const formatArticles = (articles) => {
   return articles.map(({ created_at, ...restOfArticle }) => {
     return {
       ...restOfArticle,
-      created_at: formatTimestamp(created_at),
+      created_at: getTimestamp(created_at),
     };
   });
 };
@@ -28,14 +28,14 @@ const formatComments = (commentData, articleRef) => {
         article_id: articleRef[belongs_to],
         author: created_by,
         ...restOfComment,
-        created_at: formatTimestamp(created_at),
+        created_at: getTimestamp(created_at),
       };
     }
   );
 };
 
 module.exports = {
-  formatTimestamp,
+  getTimestamp,
   formatArticles,
   getArticleRef,
   formatComments,

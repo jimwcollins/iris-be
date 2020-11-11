@@ -1,18 +1,18 @@
 process.env.NODE_ENV = 'test';
 
 const {
-  formatTimestamp,
+  getTimestamp,
   formatArticles,
   getArticleRef,
   formatComments,
 } = require('../db/utils/data-manipulation.js');
 
-describe('formatTimestamp()', () => {
+describe('getTimestamp()', () => {
   it('Returns a timestamp in the right format', () => {
     const timeIn = 1542284514171;
-    const expectedOutput = '2018-11-15T12:21:54.171Z';
-    const actualOutput = formatTimestamp(timeIn);
-    expect(actualOutput).toBe(expectedOutput);
+    const expectedOutput = new Date(timeIn);
+    const actualOutput = getTimestamp(timeIn);
+    expect(actualOutput).toStrictEqual(expectedOutput);
   });
 });
 
@@ -34,7 +34,7 @@ describe('formatArticles()', () => {
         topic: 'mitch',
         author: 'butter_bridge',
         body: 'I find this existence challenging',
-        created_at: '2018-11-15T12:21:54.171Z',
+        created_at: new Date(1542284514171),
         votes: 100,
       },
     ];
@@ -66,7 +66,7 @@ describe('formatArticles()', () => {
         topic: 'mitch',
         author: 'butter_bridge',
         body: 'I find this existence challenging',
-        created_at: '2018-11-15T12:21:54.171Z',
+        created_at: new Date(1542284514171),
         votes: 100,
       },
       {
@@ -74,7 +74,7 @@ describe('formatArticles()', () => {
         topic: 'mitch',
         author: 'icellusedkars',
         body: 'some gifs',
-        created_at: '2010-11-17T12:21:54.171Z',
+        created_at: new Date(1289996514171),
       },
     ];
     const actualOutput = formatArticles(input);
@@ -102,6 +102,7 @@ describe('formatArticles()', () => {
         votes: 100,
       },
     ];
+    formatArticles(input);
     expect(input).toEqual(expectedInput);
   });
 });
@@ -154,7 +155,7 @@ describe('getArticleRef()', () => {
   });
 });
 
-describe.only('formatComments()', () => {
+describe('formatComments()', () => {
   it('formats a single comment', () => {
     const input = [
       {
@@ -176,7 +177,7 @@ describe.only('formatComments()', () => {
         article_id: 9,
         author: 'butter_bridge',
         votes: 16,
-        created_at: '2017-11-22T12:36:03.389Z',
+        created_at: new Date(1511354163389),
       },
     ];
     expect(formatComments(input, articleRef)).toEqual(expectedOutput);
@@ -212,7 +213,7 @@ describe.only('formatComments()', () => {
         article_id: 9,
         author: 'butter_bridge',
         votes: 16,
-        created_at: '2017-11-22T12:36:03.389Z',
+        created_at: new Date(1511354163389),
       },
       {
         body:
@@ -220,9 +221,37 @@ describe.only('formatComments()', () => {
         article_id: 4,
         author: 'butter_bridge',
         votes: 14,
-        created_at: '2016-11-22T12:36:03.389Z',
+        created_at: new Date(1479818163389),
       },
     ];
     expect(formatComments(input, articleRef)).toEqual(expectedOutput);
+  });
+
+  it('does not mutate original array', () => {
+    const input = [
+      {
+        body:
+          "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        belongs_to: "They're not exactly dogs, are they?",
+        created_by: 'butter_bridge',
+        votes: 16,
+        created_at: 1511354163389,
+      },
+    ];
+    const articleRef = {
+      "They're not exactly dogs, are they?": 9,
+    };
+    const expectedInput = [
+      {
+        body:
+          "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        belongs_to: "They're not exactly dogs, are they?",
+        created_by: 'butter_bridge',
+        votes: 16,
+        created_at: 1511354163389,
+      },
+    ];
+    formatComments(input, articleRef);
+    expect(input).toEqual(expectedInput);
   });
 });
