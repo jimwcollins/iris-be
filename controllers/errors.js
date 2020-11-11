@@ -3,7 +3,6 @@ const send404 = (req, res, next) => {
 };
 
 const handlePSQLErrors = (err, req, res, next) => {
-  console.log('PSQL Error:', err);
   const badReqCode = ['42703', '22P02'];
   if (badReqCode.includes(err.code)) {
     res.status(400).send({ msg: 'Bad request' });

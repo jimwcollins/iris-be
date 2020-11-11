@@ -158,13 +158,12 @@ describe('NC_News API', () => {
           .expect(200);
       });
 
-      it.only('PATCH returns 200 and increments article votes', () => {
+      it('PATCH returns 200 and increments article votes', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ inc_votes: 10 })
           .expect(200)
           .then(({ body }) => {
-            console.log('Patched body:', body);
             expect(body.article).toHaveProperty('author', 'butter_bridge');
             expect(body.article).toHaveProperty(
               'title',
@@ -184,13 +183,12 @@ describe('NC_News API', () => {
           });
       });
 
-      it.only('PATCH returns 200 and decrements article votes', () => {
+      it('PATCH returns 200 and decrements article votes', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ inc_votes: -50 })
           .expect(200)
           .then(({ body }) => {
-            console.log('Patched body:', body);
             expect(body.article).toHaveProperty('author', 'butter_bridge');
             expect(body.article).toHaveProperty(
               'title',
@@ -207,6 +205,55 @@ describe('NC_News API', () => {
               '2018-11-15T12:21:54.171Z'
             );
             expect(body.article).toHaveProperty('votes', 50);
+          });
+      });
+
+      it("PATCH returns 404 for an article that does't exist", () => {
+        return request(app)
+          .patch('/api/articles/1000')
+          .send({ inc_votes: 10 })
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Article not found');
+          });
+      });
+
+      it('PATCH returns 400 for an invalid article ID', () => {
+        return request(app)
+          .patch('/api/articles/NotANumber')
+          .send({ inc_votes: 10 })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Bad request');
+          });
+      });
+
+      it('PATCH returns error message for invalid patch data', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ wrong_key: 10 })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid patch data');
+          });
+      });
+
+      it('PATCH returns error message if no patch data provided', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid patch data');
+          });
+      });
+
+      it('PATCH returns error message if vote update in incorrect format', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: 'Not a number' })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid patch data');
           });
       });
     });

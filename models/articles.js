@@ -37,14 +37,17 @@ const removeArticleById = (articleId) => {
 };
 
 const updateArticleVote = (articleId, { inc_votes }) => {
-  console.log('Patching article', articleId);
-  console.log('Votes', inc_votes);
+  if (!inc_votes || typeof inc_votes !== 'number')
+    return Promise.reject({ status: 400, msg: 'Invalid patch data' });
 
   return connection('articles')
     .where('article_id', '=', articleId)
     .increment('votes', inc_votes)
     .returning('*')
     .then(([updatedArticle]) => {
+      if (!updatedArticle)
+        return Promise.reject({ status: 404, msg: 'Article not found' });
+
       return {
         article: updatedArticle,
       };
