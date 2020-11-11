@@ -149,6 +149,67 @@ describe('NC_News API', () => {
           });
       });
     });
+
+    describe('PATCH method', () => {
+      it('PATCH returns 200', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: 1 })
+          .expect(200);
+      });
+
+      it.only('PATCH returns 200 and increments article votes', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: 10 })
+          .expect(200)
+          .then(({ body }) => {
+            console.log('Patched body:', body);
+            expect(body.article).toHaveProperty('author', 'butter_bridge');
+            expect(body.article).toHaveProperty(
+              'title',
+              'Living in the shadow of a great man'
+            );
+            expect(body.article).toHaveProperty('article_id', 1);
+            expect(body.article).toHaveProperty(
+              'body',
+              'I find this existence challenging'
+            );
+            expect(body.article).toHaveProperty('topic', 'mitch');
+            expect(body.article).toHaveProperty(
+              'created_at',
+              '2018-11-15T12:21:54.171Z'
+            );
+            expect(body.article).toHaveProperty('votes', 110);
+          });
+      });
+
+      it.only('PATCH returns 200 and decrements article votes', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: -50 })
+          .expect(200)
+          .then(({ body }) => {
+            console.log('Patched body:', body);
+            expect(body.article).toHaveProperty('author', 'butter_bridge');
+            expect(body.article).toHaveProperty(
+              'title',
+              'Living in the shadow of a great man'
+            );
+            expect(body.article).toHaveProperty('article_id', 1);
+            expect(body.article).toHaveProperty(
+              'body',
+              'I find this existence challenging'
+            );
+            expect(body.article).toHaveProperty('topic', 'mitch');
+            expect(body.article).toHaveProperty(
+              'created_at',
+              '2018-11-15T12:21:54.171Z'
+            );
+            expect(body.article).toHaveProperty('votes', 50);
+          });
+      });
+    });
   });
 
   describe('/missingRoute', () => {

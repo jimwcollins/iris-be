@@ -36,4 +36,19 @@ const removeArticleById = (articleId) => {
     });
 };
 
-module.exports = { fetchArticleById, removeArticleById };
+const updateArticleVote = (articleId, { inc_votes }) => {
+  console.log('Patching article', articleId);
+  console.log('Votes', inc_votes);
+
+  return connection('articles')
+    .where('article_id', '=', articleId)
+    .increment('votes', inc_votes)
+    .returning('*')
+    .then(([updatedArticle]) => {
+      return {
+        article: updatedArticle,
+      };
+    });
+};
+
+module.exports = { fetchArticleById, removeArticleById, updateArticleVote };
