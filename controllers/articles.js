@@ -39,7 +39,8 @@ const patchArticleById = (req, res, next) => {
 
 const getCommentsByArticleId = (req, res, next) => {
   const articleId = req.params.articleId;
-  fetchCommentsByArticleId(articleId)
+  const queries = req.query;
+  fetchCommentsByArticleId(articleId, queries)
     .then((returnedComments) => {
       res.status(200).send(returnedComments);
     })

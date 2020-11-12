@@ -3,7 +3,6 @@ const send404 = (req, res, next) => {
 };
 
 const handlePSQLErrors = (err, req, res, next) => {
-  console.log('PSQL error:', err);
   const badReqCodes = ['42703', '22P02'];
   const invalidIdCodes = ['23503'];
 

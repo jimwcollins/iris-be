@@ -53,11 +53,12 @@ const updateArticleVote = (articleId, { inc_votes }) => {
     });
 };
 
-const fetchCommentsByArticleId = (articleId) => {
+const fetchCommentsByArticleId = (articleId, { sort_by, order }) => {
   return connection('comments')
     .select('comments.*')
     .rightJoin('articles', 'articles.article_id', 'comments.article_id')
     .where('articles.article_id', '=', articleId)
+    .orderBy(sort_by || 'created_at', order || 'asc')
     .then((comments) => {
       if (comments.length === 0) {
         return Promise.reject({

@@ -357,13 +357,12 @@ describe('NC_News API', () => {
       });
     });
 
-    describe.only('GET method', () => {
+    describe('GET method', () => {
       it('GET should return 200 and an array of comments', () => {
         return request(app)
           .get('/api/articles/5/comments')
           .expect(200)
           .then(({ body }) => {
-            console.log('Return comments:', body);
             expect(Array.isArray(body.comments)).toBe(true);
             expect(body.comments.length).toBe(2);
             body.comments.forEach((comment) => {
@@ -393,9 +392,68 @@ describe('NC_News API', () => {
           .get('/api/articles/3/comments')
           .expect(200)
           .then(({ body }) => {
-            console.log('Return comments:', body);
             expect(body.comments).toBe('No comments found for this article');
           });
+      });
+
+      describe('GET method with sorting and queries', () => {
+        it('should sort comments by "created_at" in ascending order as default', () => {
+          return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comments).toBeSortedBy('created_at');
+            });
+        });
+
+        it('should sort comments by sort_by query if specified', () => {
+          return request(app)
+            .get('/api/articles/1/comments?sort_by=votes')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comments).toBeSortedBy('votes');
+            });
+        });
+
+        it('should show error message if sorted by non-existing column', () => {
+          return request(app)
+            .get('/api/articles/1/comments?sort_by=nocolumn')
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).toBe('Bad request');
+            });
+        });
+
+        it('should sort comments in descending order if specified', () => {
+          return request(app)
+            .get('/api/articles/1/comments?order=desc')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comments).toBeSortedBy('created_at', {
+                descending: true,
+              });
+            });
+        });
+
+        it('should sort comments by both sort_by and order', () => {
+          return request(app)
+            .get('/api/articles/1/comments?sort_by=comment_id&order=desc')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comments).toBeSortedBy('comment_id', {
+                descending: true,
+              });
+            });
+        });
+
+        it('should ignore invalid queries', () => {
+          return request(app)
+            .get('/api/articles/1/comments?sort=comment_id&order_by=desc')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comments).toBeSortedBy('created_at');
+            });
+        });
       });
     });
   });
