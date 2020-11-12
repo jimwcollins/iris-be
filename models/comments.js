@@ -18,4 +18,16 @@ const updateCommentVote = (commentId, voteUpdate) => {
     });
 };
 
-module.exports = { updateCommentVote };
+const removeCommentById = (commentId) => {
+  return connection('comments')
+    .del()
+    .where('comment_id', '=', commentId)
+    .then((numRowsDeleted) => {
+      if (numRowsDeleted === 0)
+        return Promise.reject({ status: 404, msg: 'Comment not found' });
+
+      return;
+    });
+};
+
+module.exports = { updateCommentVote, removeCommentById };

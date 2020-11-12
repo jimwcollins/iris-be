@@ -821,24 +821,42 @@ describe('NC_News API', () => {
       });
     });
 
-    describe.only('DELETE method', () => {
+    describe('DELETE method', () => {
       it('should return 204', () => {
         return request(app).delete('/api/comments/1').expect(204);
       });
 
-      // it('DELETE responds with 204 and removes article from DB', () => {
-      //   return request(app)
-      //     .delete('/api/articles/1')
-      //     .expect(204)
-      //     .then(() => {
-      //       return connection('articles')
-      //         .select('*')
-      //         .where('article_id', '=', 1);
-      //     })
-      //     .then((articles) => {
-      //       expect(articles.length).toBe(0);
-      //     });
-      // });
+      it('204 - DELETE removes article from DB', () => {
+        return request(app)
+          .delete('/api/comments/1')
+          .expect(204)
+          .then(() => {
+            return connection('comments')
+              .select('*')
+              .where('comment_id', '=', 1);
+          })
+          .then((comments) => {
+            expect(comments.length).toBe(0);
+          });
+      });
+
+      it("404 - returns error for comment that doesn't exist", () => {
+        return request(app)
+          .delete('/api/comments/1000')
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Comment not found');
+          });
+      });
+
+      it('400 - returns error for invalid comment ID', () => {
+        return request(app)
+          .delete('/api/comments/NotANumber')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Bad request');
+          });
+      });
     });
   });
 
