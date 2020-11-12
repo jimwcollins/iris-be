@@ -1,11 +1,22 @@
+const { queryBuilder } = require('../db/connection');
 const connection = require('../db/connection');
 
-const fetchAllArticles = () => {
+const fetchAllArticles = ({ sort_by, order, author, topic }) => {
+  console.log('Sort by:', sort_by);
+  console.log('order:', order);
+  console.log('author:', author);
+  console.log('topic:', topic);
+
   return connection('articles')
     .select('articles.*')
     .count('comments.comment_id AS comment_count')
     .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+    .modify((query) => {
+      if (author) query.where('articles.author', '=', author);
+      if (topic) query.where('articles.topic', '=', topic);
+    })
     .groupBy('articles.article_id')
+    .orderBy(sort_by || 'created_at', order || 'asc')
     .then((returnedArticles) => {
       // Map returned articles to new array, with comment count
       // parsed into int for each object

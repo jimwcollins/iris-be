@@ -510,7 +510,6 @@ describe('NC_News API', () => {
           .get('/api/articles')
           .expect(200)
           .then(({ body }) => {
-            console.log(body.articles[5]);
             expect(body.articles[5]).toHaveProperty('article_id', 9);
             expect(body.articles[5]).toHaveProperty(
               'title',
@@ -529,6 +528,78 @@ describe('NC_News API', () => {
             );
             expect(body.articles[5]).toHaveProperty('comment_count', 2);
           });
+      });
+
+      describe.only('GET queries', () => {
+        it('200 - should sorrt articles by created_at in ascending by default', () => {
+          return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toBeSortedBy('created_at');
+            });
+        });
+
+        it('200 - should sort articles by title if specified', () => {
+          return request(app)
+            .get('/api/articles?sort_by=title')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toBeSortedBy('title');
+            });
+        });
+
+        it('200 - should sort articles by comment_count, descending if specified', () => {
+          return request(app)
+            .get('/api/articles?sort_by=comment_count&order=desc')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toBeSortedBy('comment_count', {
+                descending: true,
+              });
+            });
+        });
+
+        it('200 - should filter articles by author', () => {
+          return request(app)
+            .get('/api/articles?author=butter_bridge')
+            .expect(200)
+            .then(({ body }) => {
+              console.log('Filter result', body);
+              expect(body.articles.length).toBe(3);
+              body.articles.forEach((article) => {
+                expect(article).toHaveProperty('author', 'butter_bridge');
+              });
+            });
+        });
+
+        it('200 - should filter articles by topic', () => {
+          return request(app)
+            .get('/api/articles?topic=cats')
+            .expect(200)
+            .then(({ body }) => {
+              console.log('Filter result', body);
+              expect(body.articles.length).toBe(1);
+              body.articles.forEach((article) => {
+                expect(article).toHaveProperty('topic', 'cats');
+              });
+            });
+        });
+
+        it.only('200 - should filter articles by topic AND author', () => {
+          return request(app)
+            .get('/api/articles?author=rogersop&topic=mitch')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(2);
+              const result = body.articles.every((article) => {
+                return (
+                  article.topic === 'mitch' && article.author === 'rogersop'
+                );
+              });
+              expect(result).toBe(true);
+            });
+        });
       });
     });
   });
