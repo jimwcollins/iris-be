@@ -458,7 +458,7 @@ describe('NC_News API', () => {
     });
   });
 
-  describe.only('Testing /api/articles', () => {
+  describe('Testing /api/articles', () => {
     describe('GET method', () => {
       it('should return 200 and retrieve articles (no comment count)', () => {
         return request(app)
@@ -510,28 +510,28 @@ describe('NC_News API', () => {
           .get('/api/articles')
           .expect(200)
           .then(({ body }) => {
-            expect(body.articles[5]).toHaveProperty('article_id', 9);
-            expect(body.articles[5]).toHaveProperty(
+            expect(body.articles[3]).toHaveProperty('article_id', 9);
+            expect(body.articles[3]).toHaveProperty(
               'title',
               "They're not exactly dogs, are they?"
             );
-            expect(body.articles[5]).toHaveProperty(
+            expect(body.articles[3]).toHaveProperty(
               'body',
               'Well? Think about it.'
             );
-            expect(body.articles[5]).toHaveProperty('votes', 0);
-            expect(body.articles[5]).toHaveProperty('topic', 'mitch');
-            expect(body.articles[5]).toHaveProperty('author', 'butter_bridge');
-            expect(body.articles[5]).toHaveProperty(
+            expect(body.articles[3]).toHaveProperty('votes', 0);
+            expect(body.articles[3]).toHaveProperty('topic', 'mitch');
+            expect(body.articles[3]).toHaveProperty('author', 'butter_bridge');
+            expect(body.articles[3]).toHaveProperty(
               'created_at',
               '1986-11-23T12:21:54.171Z'
             );
-            expect(body.articles[5]).toHaveProperty('comment_count', 2);
+            expect(body.articles[3]).toHaveProperty('comment_count', 2);
           });
       });
 
-      describe.only('GET queries', () => {
-        it('200 - should sorrt articles by created_at in ascending by default', () => {
+      describe('GET queries', () => {
+        it('200 - should sort articles by created_at in ascending by default', () => {
           return request(app)
             .get('/api/articles')
             .expect(200)
@@ -560,12 +560,38 @@ describe('NC_News API', () => {
             });
         });
 
+        it('200 - should ignore incorrect sort and order queries', () => {
+          return request(app)
+            .get('/api/articles?sort=comment_count&order_by=desc')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toBeSortedBy('created_at');
+            });
+        });
+
+        it('400 - should show error message if sorted by non-existing column', () => {
+          return request(app)
+            .get('/api/articles?sort_by=nocolumn')
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).toBe('Bad request');
+            });
+        });
+
+        it('200 - should ignore incorrect ordering', () => {
+          return request(app)
+            .get('/api/articles?order=noorder')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toBeSortedBy('created_at');
+            });
+        });
+
         it('200 - should filter articles by author', () => {
           return request(app)
             .get('/api/articles?author=butter_bridge')
             .expect(200)
             .then(({ body }) => {
-              console.log('Filter result', body);
               expect(body.articles.length).toBe(3);
               body.articles.forEach((article) => {
                 expect(article).toHaveProperty('author', 'butter_bridge');
@@ -578,7 +604,6 @@ describe('NC_News API', () => {
             .get('/api/articles?topic=cats')
             .expect(200)
             .then(({ body }) => {
-              console.log('Filter result', body);
               expect(body.articles.length).toBe(1);
               body.articles.forEach((article) => {
                 expect(article).toHaveProperty('topic', 'cats');
@@ -586,7 +611,7 @@ describe('NC_News API', () => {
             });
         });
 
-        it.only('200 - should filter articles by topic AND author', () => {
+        it('200 - should filter articles by topic AND author', () => {
           return request(app)
             .get('/api/articles?author=rogersop&topic=mitch')
             .expect(200)
@@ -598,6 +623,24 @@ describe('NC_News API', () => {
                 );
               });
               expect(result).toBe(true);
+            });
+        });
+
+        it('200 - should return empty array for non-existing topic', () => {
+          return request(app)
+            .get('/api/articles?topic=notopic')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(0);
+            });
+        });
+
+        it('200 - should ignore incorrect filters', () => {
+          return request(app)
+            .get('/api/articles?nofilter=rogersop&topi=random')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(12);
             });
         });
       });

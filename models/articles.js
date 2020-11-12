@@ -2,11 +2,6 @@ const { queryBuilder } = require('../db/connection');
 const connection = require('../db/connection');
 
 const fetchAllArticles = ({ sort_by, order, author, topic }) => {
-  console.log('Sort by:', sort_by);
-  console.log('order:', order);
-  console.log('author:', author);
-  console.log('topic:', topic);
-
   return connection('articles')
     .select('articles.*')
     .count('comments.comment_id AS comment_count')
