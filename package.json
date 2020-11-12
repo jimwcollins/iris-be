@@ -11,7 +11,8 @@
     "seed-dev": "npm run setup-dbs && knex seed:run",
     "seed-test": "npm run setup-dbs && NODE_ENV=test knex seed:run",
     "seed": "knex seed:run",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "dev": "nodemon listen.js"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,7 @@
   "devDependencies": {
     "jest": "^26.6.3",
     "jest-sorted": "^1.0.8",
+    "nodemon": "^2.0.6",
     "supertest": "^6.0.1"
   }
 }

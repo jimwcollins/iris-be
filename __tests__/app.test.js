@@ -12,7 +12,7 @@ describe('NC_News API', () => {
     return connection.seed.run();
   });
 
-  describe('Testing the topics api', () => {
+  describe('Testing the topics endpoint', () => {
     it('GET responds with a 200 ok and correct topics array', () => {
       return request(app)
         .get('/api/topics')
@@ -855,6 +855,32 @@ describe('NC_News API', () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe('Bad request');
+          });
+      });
+    });
+  });
+
+  describe.only('Testing /api endpoint', () => {
+    describe('GET method', () => {
+      it('200 - should respond with JSON of endpoints', () => {
+        return request(app)
+          .get('/api')
+          .expect(200)
+          .then(({ body }) => {
+            expect(body['NC NEWS ENDPOINTS']).toHaveProperty('/api/topics');
+            expect(body['NC NEWS ENDPOINTS']).toHaveProperty(
+              '/api/users/:username'
+            );
+            expect(body['NC NEWS ENDPOINTS']).toHaveProperty('/api/articles/');
+            expect(body['NC NEWS ENDPOINTS']).toHaveProperty(
+              '/api/articles/:article_id'
+            );
+            expect(body['NC NEWS ENDPOINTS']).toHaveProperty(
+              '/api/articles/:article_id/comments'
+            );
+            expect(body['NC NEWS ENDPOINTS']).toHaveProperty(
+              '/api/comments/:comment_id'
+            );
           });
       });
     });
