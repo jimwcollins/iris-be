@@ -282,29 +282,29 @@ describe('NC_News API', () => {
           });
       });
 
-      it('POST responds with "404 Invalid ID or user" for non-existent article', () => {
+      it('POST responds with "400 Invalid data" for non-existent article', () => {
         return request(app)
           .post('/api/articles/1500/comments')
           .send({
             username: 'rogersop',
             body: 'Where is Diane? Who is Diane? Who is anyone, really?',
           })
-          .expect(404)
+          .expect(400)
           .then(({ body }) => {
-            expect(body.msg).toBe('Invalid ID or user');
+            expect(body.msg).toBe('Invalid data');
           });
       });
 
-      it('POST responds with "404 Invalid ID or user" if username not in DB', () => {
+      it('POST responds with "400 Invalid data" if username not in DB', () => {
         return request(app)
           .post('/api/articles/5/comments')
           .send({
             username: 'diane',
             body: 'Where is Diane? Who is Diane? Who is anyone, really?',
           })
-          .expect(404)
+          .expect(400)
           .then(({ body }) => {
-            expect(body.msg).toBe('Invalid ID or user');
+            expect(body.msg).toBe('Invalid data');
           });
       });
 
@@ -340,19 +340,6 @@ describe('NC_News API', () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe('Invalid post data');
-          });
-      });
-
-      it('POST returns error message for incorrect username format', () => {
-        return request(app)
-          .post('/api/articles/5/comments')
-          .send({
-            username: 42,
-            body: 'Where is Diane? Who is Diane? Who is anyone, really?',
-          })
-          .expect(400)
-          .then(({ body }) => {
-            expect(body.msg).toBe('Invalid username data');
           });
       });
     });
@@ -646,7 +633,7 @@ describe('NC_News API', () => {
       });
     });
 
-    describe.only('POST method', () => {
+    describe('POST method', () => {
       it('201 - should post article succesfully and return new article', () => {
         return request(app)
           .post('/api/articles')
@@ -654,7 +641,6 @@ describe('NC_News API', () => {
             title: 'Kindles: tech magic or work of the dark one?',
             body:
               'Book-lovers of the world unite to condemn this newfangled devilry. Tech-fans strike back.',
-            votes: 0,
             topic: 'paper',
             author: 'rogersop',
           })
@@ -670,6 +656,78 @@ describe('NC_News API', () => {
               author: 'rogersop',
               created_at: expect.any(String),
             });
+          });
+      });
+
+      it('400 - Should return error message if no body provided', () => {
+        return request(app)
+          .post('/api/articles')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid article data');
+          });
+      });
+
+      it('400 - Should return error message if incomplete body provided', () => {
+        return request(app)
+          .post('/api/articles')
+          .send({
+            title: 'Kindles: tech magic or work of the dark one?',
+            body:
+              'Book-lovers of the world unite to condemn this newfangled devilry. Tech-fans strike back.',
+            author: 'rogersop',
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid article data');
+          });
+      });
+
+      it('400 - Should return error message if incorrect body provided', () => {
+        return request(app)
+          .post('/api/articles')
+          .send({
+            not_title: 'Kindles: tech magic or work of the dark one?',
+            body:
+              'Book-lovers of the world unite to condemn this newfangled devilry. Tech-fans strike back.',
+            topic: 'paper',
+            author: 'rogersop',
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid article data');
+          });
+      });
+
+      it('400 - Should return error message if author does not exist', () => {
+        return request(app)
+          .post('/api/articles')
+          .send({
+            title: 'Kindles: tech magic or work of the dark one?',
+            body:
+              'Book-lovers of the world unite to condemn this newfangled devilry. Tech-fans strike back.',
+            topic: 'paper',
+            author: 'some_random',
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid data');
+          });
+      });
+
+      it('400 - Should return error message if topic does not exist', () => {
+        return request(app)
+          .post('/api/articles')
+          .send({
+            title: 'Kindles: tech magic or work of the dark one?',
+            body:
+              'Book-lovers of the world unite to condemn this newfangled devilry. Tech-fans strike back.',
+            topic: 'not a topic',
+            author: 'rogersop',
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid data');
           });
       });
     });

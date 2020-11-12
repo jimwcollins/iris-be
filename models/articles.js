@@ -31,18 +31,17 @@ const fetchAllArticles = ({ sort_by, order, author, topic }) => {
 };
 
 const insertNewArticle = (articleData) => {
-  const { title, body, votes, topic, author } = articleData;
-  console.log('Title:', title);
-  console.log('Body:', body);
-  console.log('Votes:', votes);
-  console.log('Topic:', topic);
-  console.log('Author:', author);
+  const { title, body, topic, author } = articleData;
+
+  // Check we have all required data
+  if (!(title && body && topic && author)) {
+    return Promise.reject({ status: 400, msg: 'Invalid article data' });
+  }
 
   return connection('articles')
     .insert({
       title: title,
       body: body,
-      votes: votes,
       topic: topic,
       author: author,
     })

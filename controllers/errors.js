@@ -9,7 +9,7 @@ const handlePSQLErrors = (err, req, res, next) => {
   if (badReqCodes.includes(err.code)) {
     res.status(400).send({ msg: 'Bad request' });
   } else if (invalidIdCodes.includes(err.code)) {
-    res.status(404).send({ msg: 'Invalid ID or user' });
+    res.status(400).send({ msg: 'Invalid data' });
   } else {
     next(err);
   }
