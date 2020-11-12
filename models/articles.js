@@ -30,6 +30,30 @@ const fetchAllArticles = ({ sort_by, order, author, topic }) => {
     });
 };
 
+const insertNewArticle = (articleData) => {
+  const { title, body, votes, topic, author } = articleData;
+  console.log('Title:', title);
+  console.log('Body:', body);
+  console.log('Votes:', votes);
+  console.log('Topic:', topic);
+  console.log('Author:', author);
+
+  return connection('articles')
+    .insert({
+      title: title,
+      body: body,
+      votes: votes,
+      topic: topic,
+      author: author,
+    })
+    .returning('*')
+    .then(([insertedArticle]) => {
+      return {
+        article: insertedArticle,
+      };
+    });
+};
+
 const fetchArticleById = (articleId) => {
   return connection('articles')
     .select('articles.*')
@@ -130,6 +154,7 @@ const insertCommentByArticleId = (articleId, { username, body }) => {
 
 module.exports = {
   fetchAllArticles,
+  insertNewArticle,
   fetchArticleById,
   removeArticleById,
   updateArticleVote,

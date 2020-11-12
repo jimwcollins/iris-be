@@ -1,6 +1,7 @@
 const { get } = require('../app');
 const {
   fetchAllArticles,
+  insertNewArticle,
   fetchArticleById,
   removeArticleById,
   updateArticleVote,
@@ -13,6 +14,15 @@ const getAllArticles = (req, res, next) => {
   fetchAllArticles(queries)
     .then((returnedArticles) => {
       res.status(200).send(returnedArticles);
+    })
+    .catch(next);
+};
+
+const postNewArticle = (req, res, next) => {
+  const articleData = req.body;
+  insertNewArticle(articleData)
+    .then((insertedArticle) => {
+      res.status(201).send(insertedArticle);
     })
     .catch(next);
 };
@@ -69,6 +79,7 @@ const postCommentByArticleId = (req, res, next) => {
 
 module.exports = {
   getAllArticles,
+  postNewArticle,
   getArticleById,
   deleteArticleById,
   patchArticleById,

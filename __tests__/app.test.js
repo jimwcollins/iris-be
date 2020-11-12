@@ -460,7 +460,7 @@ describe('NC_News API', () => {
 
   describe('Testing /api/articles', () => {
     describe('GET method', () => {
-      it('should return 200 and retrieve articles (no comment count)', () => {
+      it('200 - should retrieve articles (no comment count)', () => {
         return request(app)
           .get('/api/articles')
           .expect(200)
@@ -482,7 +482,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('should return 200 and retrieve articles with comment count', () => {
+      it('200 - should retrieve articles with comment count', () => {
         return request(app)
           .get('/api/articles')
           .expect(200)
@@ -505,7 +505,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('should return 200 and retrieve correct article details and comment count for specific article', () => {
+      it('200 - should retrieve correct article details and comment count for specific article', () => {
         return request(app)
           .get('/api/articles')
           .expect(200)
@@ -643,6 +643,34 @@ describe('NC_News API', () => {
               expect(body.articles.length).toBe(12);
             });
         });
+      });
+    });
+
+    describe.only('POST method', () => {
+      it('201 - should post article succesfully and return new article', () => {
+        return request(app)
+          .post('/api/articles')
+          .send({
+            title: 'Kindles: tech magic or work of the dark one?',
+            body:
+              'Book-lovers of the world unite to condemn this newfangled devilry. Tech-fans strike back.',
+            votes: 0,
+            topic: 'paper',
+            author: 'rogersop',
+          })
+          .expect(201)
+          .then(({ body }) => {
+            expect(body.article).toEqual({
+              article_id: 13,
+              title: 'Kindles: tech magic or work of the dark one?',
+              body:
+                'Book-lovers of the world unite to condemn this newfangled devilry. Tech-fans strike back.',
+              votes: 0,
+              topic: 'paper',
+              author: 'rogersop',
+              created_at: expect.any(String),
+            });
+          });
       });
     });
   });
