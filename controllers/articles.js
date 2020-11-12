@@ -1,11 +1,20 @@
 const { get } = require('../app');
 const {
+  fetchAllArticles,
   fetchArticleById,
   removeArticleById,
   updateArticleVote,
   fetchCommentsByArticleId,
   insertCommentByArticleId,
 } = require('../models/articles');
+
+const getAllArticles = (req, res, next) => {
+  fetchAllArticles()
+    .then((returnedArticles) => {
+      res.status(200).send(returnedArticles);
+    })
+    .catch(next);
+};
 
 const getArticleById = (req, res, next) => {
   const articleId = req.params.articleId;
@@ -58,6 +67,7 @@ const postCommentByArticleId = (req, res, next) => {
 };
 
 module.exports = {
+  getAllArticles,
   getArticleById,
   deleteArticleById,
   patchArticleById,

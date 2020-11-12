@@ -1,5 +1,29 @@
 const connection = require('../db/connection');
 
+const fetchAllArticles = () => {
+  return connection('articles')
+    .select('articles.*')
+    .count('comments.comment_id AS comment_count')
+    .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+    .groupBy('articles.article_id')
+    .then((returnedArticles) => {
+      // Map returned articles to new array, with comment count
+      // parsed into int for each object
+      const parsedArticles = returnedArticles.map(
+        ({ comment_count, ...restOfArticle }) => {
+          return {
+            ...restOfArticle,
+            comment_count: parseInt(comment_count, 10),
+          };
+        }
+      );
+
+      return {
+        articles: parsedArticles,
+      };
+    });
+};
+
 const fetchArticleById = (articleId) => {
   return connection('articles')
     .select('articles.*')
@@ -61,11 +85,13 @@ const fetchCommentsByArticleId = (articleId, { sort_by, order }) => {
     .orderBy(sort_by || 'created_at', order || 'asc')
     .then((comments) => {
       if (comments.length === 0) {
+        // There are no articles with this ID
         return Promise.reject({
           status: 404,
           msg: 'No articles found with this ID',
         });
       } else if (comments.length === 1 && comments[0].comment_id === null) {
+        // The only row returned is for the article and there is no comment data
         return {
           comments: 'No comments found for this article',
         };
@@ -97,6 +123,7 @@ const insertCommentByArticleId = (articleId, { username, body }) => {
 };
 
 module.exports = {
+  fetchAllArticles,
   fetchArticleById,
   removeArticleById,
   updateArticleVote,

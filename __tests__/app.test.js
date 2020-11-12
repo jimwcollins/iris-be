@@ -458,6 +458,81 @@ describe('NC_News API', () => {
     });
   });
 
+  describe.only('Testing /api/articles', () => {
+    describe('GET method', () => {
+      it('should return 200 and retrieve articles (no comment count)', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).toHaveProperty('articles');
+            expect(Array.isArray(body.articles)).toBe(true);
+            expect(body.articles.length).toBe(12);
+            body.articles.forEach((article) => {
+              expect(article).toMatchObject({
+                article_id: expect.any(Number),
+                title: expect.any(String),
+                body: expect.any(String),
+                votes: expect.any(Number),
+                topic: expect.any(String),
+                author: expect.any(String),
+                created_at: expect.any(String),
+              });
+            });
+          });
+      });
+
+      it('should return 200 and retrieve articles with comment count', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).toHaveProperty('articles');
+            expect(Array.isArray(body.articles)).toBe(true);
+            expect(body.articles.length).toBe(12);
+            body.articles.forEach((article) => {
+              expect(article).toEqual({
+                article_id: expect.any(Number),
+                title: expect.any(String),
+                body: expect.any(String),
+                votes: expect.any(Number),
+                topic: expect.any(String),
+                author: expect.any(String),
+                created_at: expect.any(String),
+                comment_count: expect.any(Number),
+              });
+            });
+          });
+      });
+
+      it('should return 200 and retrieve correct article details and comment count for specific article', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then(({ body }) => {
+            console.log(body.articles[5]);
+            expect(body.articles[5]).toHaveProperty('article_id', 9);
+            expect(body.articles[5]).toHaveProperty(
+              'title',
+              "They're not exactly dogs, are they?"
+            );
+            expect(body.articles[5]).toHaveProperty(
+              'body',
+              'Well? Think about it.'
+            );
+            expect(body.articles[5]).toHaveProperty('votes', 0);
+            expect(body.articles[5]).toHaveProperty('topic', 'mitch');
+            expect(body.articles[5]).toHaveProperty('author', 'butter_bridge');
+            expect(body.articles[5]).toHaveProperty(
+              'created_at',
+              '1986-11-23T12:21:54.171Z'
+            );
+            expect(body.articles[5]).toHaveProperty('comment_count', 2);
+          });
+      });
+    });
+  });
+
   describe('/missingRoute', () => {
     it('status 404 - All methods', () => {
       const allMethods = ['get', 'post', 'delete', 'patch', 'put'];
