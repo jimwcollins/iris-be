@@ -733,6 +733,115 @@ describe('NC_News API', () => {
     });
   });
 
+  describe('Testing /api/comments/:comment_id', () => {
+    describe('PATCH method', () => {
+      it('200 - should increment votes and return updated comment', () => {
+        return request(app)
+          .patch('/api/comments/1')
+          .send({ inc_votes: 5 })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comment).toEqual({
+              comment_id: 1,
+              author: 'butter_bridge',
+              article_id: 9,
+              votes: 21,
+              created_at: '2017-11-22T12:36:03.389Z',
+              body:
+                "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            });
+          });
+      });
+
+      it('200 - should decrement votes and return updated comment', () => {
+        return request(app)
+          .patch('/api/comments/1')
+          .send({ inc_votes: -1 })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comment).toEqual({
+              comment_id: 1,
+              author: 'butter_bridge',
+              article_id: 9,
+              votes: 15,
+              created_at: '2017-11-22T12:36:03.389Z',
+              body:
+                "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            });
+          });
+      });
+
+      it("404 - returns error for comment that does't exist", () => {
+        return request(app)
+          .patch('/api/comments/1000')
+          .send({ inc_votes: 1 })
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Comment not found');
+          });
+      });
+
+      it('400 - returns error for an invalid comment ID', () => {
+        return request(app)
+          .patch('/api/comments/NotANumber')
+          .send({ inc_votes: 10 })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Bad request');
+          });
+      });
+
+      it('400 - returns error for invalid vote data', () => {
+        return request(app)
+          .patch('/api/comments/1')
+          .send({ wrong_key: 10 })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid vote data');
+          });
+      });
+
+      it('400 - returns error if vote data is not a number', () => {
+        return request(app)
+          .patch('/api/comments/1')
+          .send({ inc_votes: 'Not a number' })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid vote data');
+          });
+      });
+
+      it('400 - returns error if missing vote data', () => {
+        return request(app)
+          .patch('/api/comments/1')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid vote data');
+          });
+      });
+    });
+
+    describe.only('DELETE method', () => {
+      it('should return 204', () => {
+        return request(app).delete('/api/comments/1').expect(204);
+      });
+
+      // it('DELETE responds with 204 and removes article from DB', () => {
+      //   return request(app)
+      //     .delete('/api/articles/1')
+      //     .expect(204)
+      //     .then(() => {
+      //       return connection('articles')
+      //         .select('*')
+      //         .where('article_id', '=', 1);
+      //     })
+      //     .then((articles) => {
+      //       expect(articles.length).toBe(0);
+      //     });
+      // });
+    });
+  });
+
   describe('/missingRoute', () => {
     it('status 404 - All methods', () => {
       const allMethods = ['get', 'post', 'delete', 'patch', 'put'];
