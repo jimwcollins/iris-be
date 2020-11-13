@@ -716,6 +716,44 @@ describe('NC_News API', () => {
             });
         });
 
+        it('200 - should ignore incorrect filters', () => {
+          return request(app)
+            .get('/api/articles?nofilter=rogersop&topi=random')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(12);
+            });
+        });
+
+        it('200 - should return message if no articles found for topic', () => {
+          return request(app)
+            .get('/api/articles?topic=paper')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toBe('No articles found for topic');
+            });
+        });
+
+        it('200 - should return message if no articles found for author', () => {
+          return request(app)
+            .get('/api/articles?author=lurker')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toBe('No articles found for author');
+            });
+        });
+
+        it('200 - should return message if no articles found for author and topic', () => {
+          return request(app)
+            .get('/api/articles?topic=paper&author=lurker')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toBe(
+                'No articles found for author and topic'
+              );
+            });
+        });
+
         it('404 - should return error for non-existing topic', () => {
           return request(app)
             .get('/api/articles?topic=notopic')
@@ -740,15 +778,6 @@ describe('NC_News API', () => {
             .expect(404)
             .then(({ body }) => {
               expect(body.msg).toBe('Author and topic not found');
-            });
-        });
-
-        it('200 - should ignore incorrect filters', () => {
-          return request(app)
-            .get('/api/articles?nofilter=rogersop&topi=random')
-            .expect(200)
-            .then(({ body }) => {
-              expect(body.articles.length).toBe(12);
             });
         });
       });

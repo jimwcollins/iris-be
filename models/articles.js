@@ -43,6 +43,28 @@ const fetchAllArticles = ({ sort_by, order, author, topic }) => {
         return Promise.reject({ status: 404, msg: 'Author not found' });
       }
 
+      // Check if we have any articles
+      if (articles.length === 0) {
+        if (author && topic) {
+          return {
+            articles: 'No articles found for author and topic',
+          };
+        }
+
+        if (topic) {
+          return {
+            articles: 'No articles found for topic',
+          };
+        }
+
+        if (author) {
+          return {
+            articles: 'No articles found for author',
+          };
+        }
+      }
+
+      // Otherwise we're all good!
       // Map returned articles to new array, with comment count
       // parsed into int for each object
       const parsedArticles = articles.map(
@@ -75,7 +97,6 @@ const checkAuthorExists = (author) => {
     .select('*')
     .where('username', '=', author)
     .then((users) => {
-      console.log('User check:', users);
       if (users.length === 0) return false;
       else return true;
     });
