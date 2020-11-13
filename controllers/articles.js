@@ -1,4 +1,3 @@
-const { get } = require('../app');
 const {
   fetchAllArticles,
   insertNewArticle,

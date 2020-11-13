@@ -1,4 +1,3 @@
-const { queryBuilder } = require('../db/connection');
 const connection = require('../db/connection');
 
 const fetchAllArticles = ({ sort_by, order, author, topic, limit, p }) => {
