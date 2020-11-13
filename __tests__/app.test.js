@@ -549,7 +549,7 @@ describe('NC_News API', () => {
   });
 
   describe('Testing /api/articles', () => {
-    describe.only('GET method', () => {
+    describe('GET method', () => {
       it('200 - should retrieve articles (no comment count)', () => {
         return request(app)
           .get('/api/articles')
