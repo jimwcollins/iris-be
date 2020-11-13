@@ -25,7 +25,7 @@ const postNewArticle = (req, res, next) => {
 };
 
 const getArticleById = (req, res, next) => {
-  const articleId = req.params.articleId;
+  const { articleId } = req.params;
 
   fetchArticleById(articleId)
     .then((article) => {
@@ -35,7 +35,7 @@ const getArticleById = (req, res, next) => {
 };
 
 const deleteArticleById = (req, res, next) => {
-  const articleId = req.params.articleId;
+  const { articleId } = req.params;
 
   removeArticleById(articleId)
     .then(() => {
@@ -45,7 +45,7 @@ const deleteArticleById = (req, res, next) => {
 };
 
 const patchArticleById = (req, res, next) => {
-  const articleId = req.params.articleId;
+  const { articleId } = req.params;
   const voteUpdate = req.body;
   updateArticleVote(articleId, voteUpdate)
     .then((updatedArticle) => {
