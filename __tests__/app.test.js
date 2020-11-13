@@ -234,6 +234,31 @@ describe('NC_News API', () => {
           });
       });
 
+      it('200 - PATCH ignores unwanted body elements', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: 10, author: 'diane' })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article).toHaveProperty('author', 'butter_bridge');
+            expect(body.article).toHaveProperty(
+              'title',
+              'Living in the shadow of a great man'
+            );
+            expect(body.article).toHaveProperty('article_id', 1);
+            expect(body.article).toHaveProperty(
+              'body',
+              'I find this existence challenging'
+            );
+            expect(body.article).toHaveProperty('topic', 'mitch');
+            expect(body.article).toHaveProperty(
+              'created_at',
+              '2018-11-15T12:21:54.171Z'
+            );
+            expect(body.article).toHaveProperty('votes', 110);
+          });
+      });
+
       it("404 - PATCH returns error for article that does't exist", () => {
         return request(app)
           .patch('/api/articles/1000')
@@ -302,7 +327,7 @@ describe('NC_News API', () => {
 
   describe('Testing /api/articles/:article_id/comments', () => {
     describe('POST method', () => {
-      it('POST responds with 201 and new comment', () => {
+      it('201 - POST responds with new comment', () => {
         return request(app)
           .post('/api/articles/5/comments')
           .send({
@@ -323,7 +348,29 @@ describe('NC_News API', () => {
           });
       });
 
-      it('POST responds with "400 Invalid data" for non-existent article', () => {
+      it('201 - POST ignores unwanted comment data', () => {
+        return request(app)
+          .post('/api/articles/5/comments')
+          .send({
+            username: 'rogersop',
+            body: 'Where is Diane? Who is Diane? Who is anyone, really?',
+            random: 'Ignore me',
+          })
+          .expect(201)
+          .then(({ body }) => {
+            expect(body.comment).toHaveProperty('comment_id', 19);
+            expect(body.comment).toHaveProperty('author', 'rogersop');
+            expect(body.comment).toHaveProperty('article_id', 5);
+            expect(body.comment).toHaveProperty('votes', 0);
+            expect(body.comment).toHaveProperty('created_at');
+            expect(body.comment).toHaveProperty(
+              'body',
+              'Where is Diane? Who is Diane? Who is anyone, really?'
+            );
+          });
+      });
+
+      it('400 - POST responds with "Invalid data" for non-existent article', () => {
         return request(app)
           .post('/api/articles/1500/comments')
           .send({
@@ -336,7 +383,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('POST responds with "400 Invalid data" if username not in DB', () => {
+      it('400 - POST responds with "Invalid data" if username not in DB', () => {
         return request(app)
           .post('/api/articles/5/comments')
           .send({
@@ -349,7 +396,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('POST returns error message for invalid username key', () => {
+      it('400 - POST returns error message for invalid username key', () => {
         return request(app)
           .post('/api/articles/5/comments')
           .send({
@@ -362,7 +409,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('POST returns error message for invalid body key', () => {
+      it('400 - POST returns error message for invalid body key', () => {
         return request(app)
           .post('/api/articles/5/comments')
           .send({
@@ -375,7 +422,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('POST returns error message for missing body', () => {
+      it('400 - POST returns error message for missing body', () => {
         return request(app)
           .post('/api/articles/5/comments')
           .expect(400)
@@ -386,7 +433,7 @@ describe('NC_News API', () => {
     });
 
     describe('GET method', () => {
-      it('GET should return 200 and an array of comments', () => {
+      it('200 - GET should return array of comments', () => {
         return request(app)
           .get('/api/articles/5/comments')
           .expect(200)
@@ -406,7 +453,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('should throw an error for incorrect user ID', () => {
+      it('404 - GET should throw an error for incorrect user ID', () => {
         return request(app)
           .get('/api/articles/5000/comments')
           .expect(404)
@@ -415,7 +462,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('should inform user if there are no comments for this article', () => {
+      it('200 - GET should inform user if there are no comments for this article', () => {
         return request(app)
           .get('/api/articles/3/comments')
           .expect(200)
@@ -425,7 +472,7 @@ describe('NC_News API', () => {
       });
 
       describe('GET method with sorting and queries', () => {
-        it('should sort comments by "created_at" in ascending order as default', () => {
+        it('200 - should sort comments by "created_at" in ascending order as default', () => {
           return request(app)
             .get('/api/articles/1/comments')
             .expect(200)
@@ -434,7 +481,7 @@ describe('NC_News API', () => {
             });
         });
 
-        it('should sort comments by sort_by query if specified', () => {
+        it('200 - should sort comments by sort_by query if specified', () => {
           return request(app)
             .get('/api/articles/1/comments?sort_by=votes')
             .expect(200)
@@ -443,7 +490,7 @@ describe('NC_News API', () => {
             });
         });
 
-        it('should show error message if sorted by non-existing column', () => {
+        it('400 - should show error message if sorted by non-existing column', () => {
           return request(app)
             .get('/api/articles/1/comments?sort_by=nocolumn')
             .expect(400)
@@ -452,7 +499,7 @@ describe('NC_News API', () => {
             });
         });
 
-        it('should sort comments in descending order if specified', () => {
+        it('200 - should sort comments in descending order if specified', () => {
           return request(app)
             .get('/api/articles/1/comments?order=desc')
             .expect(200)
@@ -463,7 +510,7 @@ describe('NC_News API', () => {
             });
         });
 
-        it('should sort comments by both sort_by and order', () => {
+        it('200 - should sort comments by both sort_by and order', () => {
           return request(app)
             .get('/api/articles/1/comments?sort_by=comment_id&order=desc')
             .expect(200)
@@ -474,7 +521,7 @@ describe('NC_News API', () => {
             });
         });
 
-        it('should ignore invalid queries', () => {
+        it('200 - should ignore invalid queries', () => {
           return request(app)
             .get('/api/articles/1/comments?sort=comment_id&order_by=desc')
             .expect(200)
@@ -835,6 +882,24 @@ describe('NC_News API', () => {
               author: 'butter_bridge',
               article_id: 9,
               votes: 15,
+              created_at: '2017-11-22T12:36:03.389Z',
+              body:
+                "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            });
+          });
+      });
+
+      it('200 - should ignore unwanted patch data', () => {
+        return request(app)
+          .patch('/api/comments/1')
+          .send({ inc_votes: 5, author: 'diane' })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comment).toEqual({
+              comment_id: 1,
+              author: 'butter_bridge',
+              article_id: 9,
+              votes: 21,
               created_at: '2017-11-22T12:36:03.389Z',
               body:
                 "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",

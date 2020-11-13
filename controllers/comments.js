@@ -1,4 +1,29 @@
-const { updateCommentVote, removeCommentById } = require('../models/comments');
+const {
+  fetchCommentsByArticleId,
+  insertCommentByArticleId,
+  updateCommentVote,
+  removeCommentById,
+} = require('../models/comments');
+
+const getCommentsByArticleId = (req, res, next) => {
+  const articleId = req.params.articleId;
+  const queries = req.query;
+  fetchCommentsByArticleId(articleId, queries)
+    .then((returnedComments) => {
+      res.status(200).send(returnedComments);
+    })
+    .catch(next);
+};
+
+const postCommentByArticleId = (req, res, next) => {
+  const articleId = req.params.articleId;
+  const articleData = req.body;
+  insertCommentByArticleId(articleId, articleData)
+    .then((insertedComment) => {
+      res.status(201).send(insertedComment);
+    })
+    .catch(next);
+};
 
 const patchCommentById = (req, res, next) => {
   const commentId = req.params.comment_id;
@@ -20,4 +45,9 @@ const deleteCommentById = (req, res, next) => {
     .catch(next);
 };
 
-module.exports = { patchCommentById, deleteCommentById };
+module.exports = {
+  getCommentsByArticleId,
+  postCommentByArticleId,
+  patchCommentById,
+  deleteCommentById,
+};

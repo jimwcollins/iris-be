@@ -5,9 +5,12 @@ const {
   getArticleById,
   deleteArticleById,
   patchArticleById,
+} = require('../controllers/articles');
+
+const {
   postCommentByArticleId,
   getCommentsByArticleId,
-} = require('../controllers/articles');
+} = require('../controllers/comments');
 
 const { sendInvalidMethod } = require('../controllers/errors');
 
