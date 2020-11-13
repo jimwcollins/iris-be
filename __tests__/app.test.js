@@ -557,7 +557,7 @@ describe('NC_News API', () => {
           .then(({ body }) => {
             expect(body).toHaveProperty('articles');
             expect(Array.isArray(body.articles)).toBe(true);
-            expect(body.articles.length).toBe(12);
+            expect(body.articles.length).toBe(10);
             body.articles.forEach((article) => {
               expect(article).toMatchObject({
                 article_id: expect.any(Number),
@@ -579,7 +579,7 @@ describe('NC_News API', () => {
           .then(({ body }) => {
             expect(body).toHaveProperty('articles');
             expect(Array.isArray(body.articles)).toBe(true);
-            expect(body.articles.length).toBe(12);
+            expect(body.articles.length).toBe(10);
             body.articles.forEach((article) => {
               expect(article).toEqual({
                 article_id: expect.any(Number),
@@ -721,7 +721,7 @@ describe('NC_News API', () => {
             .get('/api/articles?nofilter=rogersop&topi=random')
             .expect(200)
             .then(({ body }) => {
-              expect(body.articles.length).toBe(12);
+              expect(body.articles.length).toBe(10);
             });
         });
 
@@ -778,6 +778,69 @@ describe('NC_News API', () => {
             .expect(404)
             .then(({ body }) => {
               expect(body.msg).toBe('Author and topic not found');
+            });
+        });
+
+        it('200 - should limit articles if specified', () => {
+          return request(app)
+            .get('/api/articles?limit=2')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(2);
+            });
+        });
+
+        it('200 - should have a default limit of 10', () => {
+          return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(10);
+            });
+        });
+
+        it('200 - should ignore invalid limits', () => {
+          return request(app)
+            .get('/api/articles?limit=invalid')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(10);
+            });
+        });
+
+        it('200 - should determine correct offset if page 2 specified', () => {
+          return request(app)
+            .get('/api/articles?p=2')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(2);
+            });
+        });
+
+        it('200 - should be no offset if page 1 specified', () => {
+          return request(app)
+            .get('/api/articles?p=1')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(10);
+            });
+        });
+
+        it('200 - should be no offset if no p specified', () => {
+          return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(10);
+            });
+        });
+
+        it('200 - should ignore p value if invalid', () => {
+          return request(app)
+            .get('/api/articles?p=invalid')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(10);
             });
         });
       });
@@ -1009,7 +1072,7 @@ describe('NC_News API', () => {
         return request(app).delete('/api/comments/1').expect(204);
       });
 
-      it('204 - DELETE removes article from DB', () => {
+      it('204 - DELETE removes comment from DB', () => {
         return request(app)
           .delete('/api/comments/1')
           .expect(204)

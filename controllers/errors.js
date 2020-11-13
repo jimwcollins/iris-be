@@ -28,7 +28,7 @@ const handleCustomErrors = (err, req, res, next) => {
 };
 
 const handleInternalServerErrors = (err, req, res, next) => {
-  console.log(err);
+  console.log('Internal error:', err);
   res.status(500).send({ msg: 'Internal server error' });
 };
 
