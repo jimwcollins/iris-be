@@ -453,7 +453,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('404 - GET should throw an error for incorrect user ID', () => {
+      it('404 - GET should throw an error for incorrect article ID', () => {
         return request(app)
           .get('/api/articles/5000/comments')
           .expect(404)
@@ -549,7 +549,7 @@ describe('NC_News API', () => {
   });
 
   describe('Testing /api/articles', () => {
-    describe('GET method', () => {
+    describe.only('GET method', () => {
       it('200 - should retrieve articles (no comment count)', () => {
         return request(app)
           .get('/api/articles')
@@ -716,12 +716,30 @@ describe('NC_News API', () => {
             });
         });
 
-        it('200 - should return empty array for non-existing topic', () => {
+        it('404 - should return error for non-existing topic', () => {
           return request(app)
             .get('/api/articles?topic=notopic')
-            .expect(200)
+            .expect(404)
             .then(({ body }) => {
-              expect(body.articles.length).toBe(0);
+              expect(body.msg).toBe('Topic not found');
+            });
+        });
+
+        it('404 - should return error for non-existing author', () => {
+          return request(app)
+            .get('/api/articles?author=nobody')
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).toBe('Author not found');
+            });
+        });
+
+        it('404 - should return error for non-existing author and topic', () => {
+          return request(app)
+            .get('/api/articles?author=nobody&topic=notopic')
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).toBe('Author and topic not found');
             });
         });
 

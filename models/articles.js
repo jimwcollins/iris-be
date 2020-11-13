@@ -13,9 +13,39 @@ const fetchAllArticles = ({ sort_by, order, author, topic }) => {
     .groupBy('articles.article_id')
     .orderBy(sort_by || 'created_at', order || 'asc')
     .then((returnedArticles) => {
+      let topicExists = true;
+      let authorExists = true;
+
+      // If we have an empty array, do further tests
+      if (returnedArticles.length === 0) {
+        if (topic) topicExists = checkTopicExists(topic);
+
+        if (author) authorExists = checkAuthorExists(author);
+      }
+
+      return Promise.all([returnedArticles, authorExists, topicExists]);
+    })
+    .then(([articles, authorExists, topicExists]) => {
+      // Perform checks to see if author and topic exist.
+      // If not, reject promise.
+      if (!topicExists && !authorExists) {
+        return Promise.reject({
+          status: 404,
+          msg: 'Author and topic not found',
+        });
+      }
+
+      if (!topicExists) {
+        return Promise.reject({ status: 404, msg: 'Topic not found' });
+      }
+
+      if (!authorExists) {
+        return Promise.reject({ status: 404, msg: 'Author not found' });
+      }
+
       // Map returned articles to new array, with comment count
       // parsed into int for each object
-      const parsedArticles = returnedArticles.map(
+      const parsedArticles = articles.map(
         ({ comment_count, ...restOfArticle }) => {
           return {
             ...restOfArticle,
@@ -27,6 +57,27 @@ const fetchAllArticles = ({ sort_by, order, author, topic }) => {
       return {
         articles: parsedArticles,
       };
+    });
+};
+
+const checkTopicExists = (topic) => {
+  return connection('topics')
+    .select('*')
+    .where('slug', '=', topic)
+    .then((topics) => {
+      if (topics.length === 0) return false;
+      else return true;
+    });
+};
+
+const checkAuthorExists = (author) => {
+  return connection('users')
+    .select('*')
+    .where('username', '=', author)
+    .then((users) => {
+      console.log('User check:', users);
+      if (users.length === 0) return false;
+      else return true;
     });
 };
 
