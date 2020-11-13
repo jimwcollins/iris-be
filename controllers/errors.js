@@ -2,6 +2,10 @@ const send404 = (req, res, next) => {
   res.status(404).send({ msg: 'Route not found' });
 };
 
+const sendInvalidMethod = (req, res, next) => {
+  res.status(405).send({ msg: 'Invalid method' });
+};
+
 const handlePSQLErrors = (err, req, res, next) => {
   const badReqCodes = ['42703', '22P02'];
   const invalidIdCodes = ['23503'];
@@ -30,6 +34,7 @@ const handleInternalServerErrors = (err, req, res, next) => {
 
 module.exports = {
   send404,
+  sendInvalidMethod,
   handlePSQLErrors,
   handleCustomErrors,
   handleInternalServerErrors,

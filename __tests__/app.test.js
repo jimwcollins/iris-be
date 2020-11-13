@@ -13,7 +13,7 @@ describe('NC_News API', () => {
   });
 
   describe('Testing the topics endpoint', () => {
-    it('GET responds with a 200 ok and correct topics array', () => {
+    it('200 - GET responds with correct topics array', () => {
       return request(app)
         .get('/api/topics')
         .expect(200)
@@ -24,10 +24,23 @@ describe('NC_News API', () => {
           );
         });
     });
+
+    it('405 - should return error for invalid methods', () => {
+      const invalidMethods = ['post', 'put', 'patch', 'delete'];
+      const methodPromises = invalidMethods.map((method) => {
+        return request(app)
+          [method]('/api/topics')
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid method');
+          });
+      });
+      return Promise.all(methodPromises);
+    });
   });
 
   describe('Testing /api/users/:username', () => {
-    it('GET responds with 200 ok and correct user object', () => {
+    it('200 - GET responds with correct user object', () => {
       return request(app)
         .get('/api/users/icellusedkars')
         .expect(200)
@@ -42,7 +55,7 @@ describe('NC_News API', () => {
         });
     });
 
-    it('GET responds with 404 for incorrect user', () => {
+    it('404 - GET responds with error for incorrect user', () => {
       return request(app)
         .get('/api/users/notauser')
         .expect(404)
@@ -50,11 +63,24 @@ describe('NC_News API', () => {
           expect(body.msg).toBe('No user found');
         });
     });
+
+    it('405 - should return error for invalid methods', () => {
+      const invalidMethods = ['post', 'put', 'patch', 'delete'];
+      const methodPromises = invalidMethods.map((method) => {
+        return request(app)
+          [method]('/api/users/icellusedkars')
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Invalid method');
+          });
+      });
+      return Promise.all(methodPromises);
+    });
   });
 
   describe('Testing /api/articles/:article_id', () => {
     describe('GET method', () => {
-      it('GET responds with 200 ok and correct article object', () => {
+      it('200 - GET responds with correct article object', () => {
         return request(app)
           .get('/api/articles/1')
           .expect(200)
@@ -79,7 +105,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('GET responds with 400 "Bad request" for invalid article ID', () => {
+      it('400 - GET responds with "Bad request" for invalid article ID', () => {
         return request(app)
           .get('/api/articles/Notanumber')
           .expect(400)
@@ -88,7 +114,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('GET responds with 404 "No user found" for article that doesn\'t exist', () => {
+      it('404 - GET responds with "No user found" for article that doesn\'t exist', () => {
         return request(app)
           .get('/api/articles/1000')
           .expect(404)
@@ -99,11 +125,11 @@ describe('NC_News API', () => {
     });
 
     describe('DELETE method', () => {
-      it('DELETE responds with 204 for succesful deletion', () => {
+      it('204 - DELETE responds with 204 for succesful deletion', () => {
         return request(app).delete('/api/articles/1').expect(204);
       });
 
-      it('DELETE responds with 204 and removes article from DB', () => {
+      it('204 - DELETE removes article from DB', () => {
         return request(app)
           .delete('/api/articles/1')
           .expect(204)
@@ -117,7 +143,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('DELETE removes article from DB and deletes associated comments', () => {
+      it('204 - DELETE removes article from DB and deletes associated comments', () => {
         return request(app)
           .delete('/api/articles/1')
           .expect(204)
@@ -131,7 +157,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it("DELETE returns 404 for an article that does't exist", () => {
+      it("404 - DELETE returns error for an article that does't exist", () => {
         return request(app)
           .delete('/api/articles/1000')
           .expect(404)
@@ -140,7 +166,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('DELETE returns 400 for an invalid article ID', () => {
+      it('400 - DELETE returns error  for an invalid article ID', () => {
         return request(app)
           .delete('/api/articles/NotANumber')
           .expect(400)
@@ -151,14 +177,14 @@ describe('NC_News API', () => {
     });
 
     describe('PATCH method', () => {
-      it('PATCH returns 200', () => {
+      it('200 - PATCH returns 200', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ inc_votes: 1 })
           .expect(200);
       });
 
-      it('PATCH returns 200 and increments article votes', () => {
+      it('200 - PATCH increments article votes', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ inc_votes: 10 })
@@ -183,7 +209,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('PATCH returns 200 and decrements article votes', () => {
+      it('200 - PATCH decrements article votes', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ inc_votes: -50 })
@@ -208,7 +234,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it("PATCH returns 404 for an article that does't exist", () => {
+      it("404 - PATCH returns error for article that does't exist", () => {
         return request(app)
           .patch('/api/articles/1000')
           .send({ inc_votes: 10 })
@@ -218,7 +244,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('PATCH returns 400 for an invalid article ID', () => {
+      it('400 - PATCH returns error for an invalid article ID', () => {
         return request(app)
           .patch('/api/articles/NotANumber')
           .send({ inc_votes: 10 })
@@ -228,7 +254,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('PATCH returns error message for invalid patch data', () => {
+      it('400 - PATCH returns error for invalid patch data', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ wrong_key: 10 })
@@ -238,7 +264,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('PATCH returns error message if no patch data provided', () => {
+      it('400 - PATCH returns error if no patch data provided', () => {
         return request(app)
           .patch('/api/articles/1')
           .expect(400)
@@ -247,7 +273,7 @@ describe('NC_News API', () => {
           });
       });
 
-      it('PATCH returns error message if vote update in incorrect format', () => {
+      it('400 - PATCH returns error if vote update in incorrect format', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ inc_votes: 'Not a number' })
@@ -255,6 +281,21 @@ describe('NC_News API', () => {
           .then(({ body }) => {
             expect(body.msg).toBe('Invalid patch data');
           });
+      });
+    });
+
+    describe('Invalid methods', () => {
+      it('405 - should return error for invalid methods', () => {
+        const invalidMethods = ['post', 'put'];
+        const methodPromises = invalidMethods.map((method) => {
+          return request(app)
+            [method]('/api/articles/1')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).toBe('Invalid method');
+            });
+        });
+        return Promise.all(methodPromises);
       });
     });
   });
@@ -441,6 +482,21 @@ describe('NC_News API', () => {
               expect(body.comments).toBeSortedBy('created_at');
             });
         });
+      });
+    });
+
+    describe('Invalid methods', () => {
+      it('405 - should return error for invalid methods', () => {
+        const invalidMethods = ['put', 'patch', 'delete'];
+        const methodPromises = invalidMethods.map((method) => {
+          return request(app)
+            [method]('/api/articles/5/comments')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).toBe('Invalid method');
+            });
+        });
+        return Promise.all(methodPromises);
       });
     });
   });
@@ -731,6 +787,21 @@ describe('NC_News API', () => {
           });
       });
     });
+
+    describe('Invalid methods', () => {
+      it('405 - should return error for invalid methods', () => {
+        const invalidMethods = ['put', 'patch', 'delete'];
+        const methodPromises = invalidMethods.map((method) => {
+          return request(app)
+            [method]('/api/articles')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).toBe('Invalid method');
+            });
+        });
+        return Promise.all(methodPromises);
+      });
+    });
   });
 
   describe('Testing /api/comments/:comment_id', () => {
@@ -858,9 +929,24 @@ describe('NC_News API', () => {
           });
       });
     });
+
+    describe('Invalid methods', () => {
+      it('405 - should return error for invalid methods', () => {
+        const invalidMethods = ['get', 'post', 'put'];
+        const methodPromises = invalidMethods.map((method) => {
+          return request(app)
+            [method]('/api/comments/1')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).toBe('Invalid method');
+            });
+        });
+        return Promise.all(methodPromises);
+      });
+    });
   });
 
-  describe.only('Testing /api endpoint', () => {
+  describe('Testing /api endpoint', () => {
     describe('GET method', () => {
       it('200 - should respond with JSON of endpoints', () => {
         return request(app)
@@ -884,11 +970,25 @@ describe('NC_News API', () => {
           });
       });
     });
+    describe('Invalid methods', () => {
+      it('405 - should return error for invalid method', () => {
+        const invalidMethods = ['post', 'delete', 'patch', 'post'];
+        const methodPromises = invalidMethods.map((method) => {
+          return request(app)
+            [method]('/api')
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).toBe('Invalid method');
+            });
+        });
+        return Promise.all(methodPromises);
+      });
+    });
   });
 
   describe('/missingRoute', () => {
     it('status 404 - All methods', () => {
-      const allMethods = ['get', 'post', 'delete', 'patch', 'put'];
+      const allMethods = ['get', 'post', 'put', 'patch', 'delete'];
       const methodPromises = allMethods.map((method) => {
         return request(app)
           [method]('/missingRoute')
