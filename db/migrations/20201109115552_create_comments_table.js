@@ -1,9 +1,10 @@
 exports.up = function (knex) {
   return knex.schema.createTable('comments', (commentsTable) => {
     commentsTable.increments('comment_id').primary();
-    commentsTable.text('author').references('users.username');
+    commentsTable.text('author').notNullable().references('users.username');
     commentsTable
       .integer('article_id')
+      .notNullable()
       .references('articles.article_id')
       .onDelete('CASCADE');
     commentsTable.integer('votes').defaultTo(0);

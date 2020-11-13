@@ -3,7 +3,7 @@ const app = require('../app');
 const request = require('supertest');
 const connection = require('../db/connection');
 
-describe('NC_News API', () => {
+describe('NC_News  API', () => {
   afterAll(() => {
     return connection.destroy();
   });
