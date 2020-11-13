@@ -16,12 +16,12 @@ exports.seed = (knex) => {
     .rollback()
     .then(() => knex.migrate.latest())
     .then(() => {
-      return knex('topics').insert(topicData).returning('*');
+      const topicsPromise = knex('topics').insert(topicData);
+      const usersPromise = knex('users').insert(userData);
+
+      return Promise.all([topicsPromise, usersPromise]);
     })
-    .then((topicsRows) => {
-      return knex('users').insert(userData).returning('*');
-    })
-    .then((usersRows) => {
+    .then(() => {
       const formattedArticleData = formatArticles(articleData);
 
       return knex('articles').insert(formattedArticleData).returning('*');
