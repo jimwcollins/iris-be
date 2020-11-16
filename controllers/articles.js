@@ -7,10 +7,20 @@ const {
 } = require('../models/articles');
 
 const getAllArticles = (req, res, next) => {
-  const queries = req.query;
-  fetchAllArticles(queries)
+  // Set limit and offset
+  let limit = Number(req.query.limit);
+  const page = Number(req.query.p);
+  if (Number.isNaN(limit)) limit = 10;
+  const offset = page ? (page - 1) * limit : 0;
+
+  fetchAllArticles(req.query)
     .then((returnedArticles) => {
-      res.status(200).send(returnedArticles);
+      const articles = {
+        total_count: returnedArticles.length,
+        articles: returnedArticles.slice(offset, offset + limit),
+      };
+
+      res.status(200).send(articles);
     })
     .catch(next);
 };

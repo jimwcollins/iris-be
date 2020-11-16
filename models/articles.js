@@ -1,10 +1,6 @@
 const connection = require('../db/connection');
 
-const fetchAllArticles = ({ sort_by, order, author, topic, limit, p }) => {
-  // Set limit and offset
-  if (Number.isNaN(Number(limit))) limit = 10;
-  const offset = p ? (p - 1) * limit : 0;
-
+const fetchAllArticles = ({ sort_by, order, author, topic }) => {
   return connection('articles')
     .select('articles.*')
     .count('comments.comment_id AS comment_count')
@@ -15,8 +11,6 @@ const fetchAllArticles = ({ sort_by, order, author, topic, limit, p }) => {
     })
     .groupBy('articles.article_id')
     .orderBy(sort_by || 'created_at', order || 'asc')
-    .limit(limit)
-    .offset(offset)
     .then((returnedArticles) => {
       let topicExists = true;
       let authorExists = true;
@@ -50,23 +44,20 @@ const fetchAllArticles = ({ sort_by, order, author, topic, limit, p }) => {
 
       // Check if we have any articles
       if (articles.length === 0) {
-        if (author && topic) {
+        if (author && topic)
           return {
             articles: 'No articles found for author and topic',
           };
-        }
 
-        if (topic) {
+        if (topic)
           return {
             articles: 'No articles found for topic',
           };
-        }
 
-        if (author) {
+        if (author)
           return {
             articles: 'No articles found for author',
           };
-        }
       }
 
       // Otherwise we're all good!
@@ -81,10 +72,7 @@ const fetchAllArticles = ({ sort_by, order, author, topic, limit, p }) => {
         }
       );
 
-      return {
-        total_count: articles.length,
-        articles: parsedArticles,
-      };
+      return parsedArticles;
     });
 };
 

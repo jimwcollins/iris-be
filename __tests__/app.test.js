@@ -780,13 +780,27 @@ describe('NC_News  API', () => {
               expect(body.msg).toBe('Author and topic not found');
             });
         });
+      });
 
+      describe.only('Articles pagination', () => {
         it('200 - should limit articles if specified', () => {
           return request(app)
-            .get('/api/articles?limit=2')
+            .get('/api/articles?limit=5&sort_by=article_id')
             .expect(200)
             .then(({ body }) => {
-              expect(body.articles.length).toBe(2);
+              expect(body.articles.length).toBe(5);
+              expect(body.articles[0].article_id).toBe(1);
+            });
+        });
+
+        it('200 - should display correct total count, discounting limit', () => {
+          return request(app)
+            .get('/api/articles?limit=5&sort_by=article_id')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.total_count).toBe(12);
+              expect(body.articles.length).toBe(5);
+              expect(body.articles[0].article_id).toBe(1);
             });
         });
 
@@ -810,28 +824,31 @@ describe('NC_News  API', () => {
 
         it('200 - should determine correct offset if page 2 specified', () => {
           return request(app)
-            .get('/api/articles?p=2')
+            .get('/api/articles?p=2&sort_by=article_id')
             .expect(200)
             .then(({ body }) => {
               expect(body.articles.length).toBe(2);
+              expect(body.articles[0].article_id).toBe(11);
             });
         });
 
         it('200 - should be no offset if page 1 specified', () => {
           return request(app)
-            .get('/api/articles?p=1')
+            .get('/api/articles?p=1&sort_by=article_id')
             .expect(200)
             .then(({ body }) => {
               expect(body.articles.length).toBe(10);
+              expect(body.articles[0].article_id).toBe(1);
             });
         });
 
         it('200 - should be no offset if no p specified', () => {
           return request(app)
-            .get('/api/articles')
+            .get('/api/articles?sort_by=article_id')
             .expect(200)
             .then(({ body }) => {
               expect(body.articles.length).toBe(10);
+              expect(body.articles[0].article_id).toBe(1);
             });
         });
 
@@ -841,6 +858,16 @@ describe('NC_News  API', () => {
             .expect(200)
             .then(({ body }) => {
               expect(body.articles.length).toBe(10);
+            });
+        });
+
+        it('200 - should return correct results for limit and page', () => {
+          return request(app)
+            .get('/api/articles?sort_by=article_id&limit=5&p=2')
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles.length).toBe(5);
+              expect(body.articles[0].article_id).toBe(6);
             });
         });
       });
