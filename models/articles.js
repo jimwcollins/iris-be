@@ -10,7 +10,7 @@ const fetchAllArticles = ({ sort_by, order, author, topic }) => {
       if (topic) query.where('articles.topic', '=', topic);
     })
     .groupBy('articles.article_id')
-    .orderBy(sort_by || 'created_at', order || 'asc')
+    .orderBy(sort_by || 'created_at', order || 'desc')
     .then((returnedArticles) => {
       let topicExists = true;
       let authorExists = true;
@@ -30,7 +30,7 @@ const fetchAllArticles = ({ sort_by, order, author, topic }) => {
       if (!topicExists && !authorExists) {
         return Promise.reject({
           status: 404,
-          msg: 'Author and topic not found',
+          msg: 'Author and topic not found'
         });
       }
 
@@ -46,17 +46,17 @@ const fetchAllArticles = ({ sort_by, order, author, topic }) => {
       if (articles.length === 0) {
         if (author && topic)
           return {
-            articles: 'No articles found for author and topic',
+            articles: 'No articles found for author and topic'
           };
 
         if (topic)
           return {
-            articles: 'No articles found for topic',
+            articles: 'No articles found for topic'
           };
 
         if (author)
           return {
-            articles: 'No articles found for author',
+            articles: 'No articles found for author'
           };
       }
 
@@ -67,7 +67,7 @@ const fetchAllArticles = ({ sort_by, order, author, topic }) => {
         ({ comment_count, ...restOfArticle }) => {
           return {
             ...restOfArticle,
-            comment_count: parseInt(comment_count, 10),
+            comment_count: parseInt(comment_count, 10)
           };
         }
       );
@@ -109,12 +109,12 @@ const insertNewArticle = (articleData) => {
       title: title,
       body: body,
       topic: topic,
-      author: author,
+      author: author
     })
     .returning('*')
     .then(([insertedArticle]) => {
       return {
-        article: insertedArticle,
+        article: insertedArticle
       };
     });
 };
@@ -136,8 +136,8 @@ const fetchArticleById = (articleId) => {
       return {
         article: {
           ...restOfArticle,
-          comment_count: parseInt(comment_count, 10),
-        },
+          comment_count: parseInt(comment_count, 10)
+        }
       };
     });
 };
@@ -167,7 +167,7 @@ const updateArticleVote = (articleId, { inc_votes }) => {
         return Promise.reject({ status: 404, msg: 'Article not found' });
 
       return {
-        article: updatedArticle,
+        article: updatedArticle
       };
     });
 };
@@ -177,5 +177,5 @@ module.exports = {
   insertNewArticle,
   fetchArticleById,
   removeArticleById,
-  updateArticleVote,
+  updateArticleVote
 };
