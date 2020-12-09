@@ -1,11 +1,21 @@
-const { fetchTopic } = require('../models/topics');
+const { fetchAllTopics, fetchTopicBySlug } = require('../models/topics');
 
-const getTopic = (req, res, next) => {
-  fetchTopic()
+const getAllTopics = (req, res, next) => {
+  fetchAllTopics()
     .then((topics) => {
       res.status(200).send(topics);
     })
     .catch(next);
 };
 
-module.exports = { getTopic };
+const getTopicBySlug = (req, res, next) => {
+  const { topicSlug } = req.params;
+
+  fetchTopicBySlug(topicSlug)
+    .then((topic) => {
+      res.status(200).send(topic);
+    })
+    .catch(next);
+};
+
+module.exports = { getAllTopics, getTopicBySlug };
