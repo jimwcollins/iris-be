@@ -5,22 +5,22 @@ const fetchCommentsByArticleId = (articleId, { sort_by, order }) => {
     .select('comments.*')
     .rightJoin('articles', 'articles.article_id', 'comments.article_id')
     .where('articles.article_id', '=', articleId)
-    .orderBy(sort_by || 'created_at', order || 'asc')
+    .orderBy(sort_by || 'created_at', order || 'desc')
     .then((comments) => {
       if (comments.length === 0) {
         // There are no articles with this ID
         return Promise.reject({
           status: 404,
-          msg: 'No articles found with this ID',
+          msg: 'No articles found with this ID'
         });
       } else if (comments.length === 1 && comments[0].comment_id === null) {
         // The only row returned is for the article and there is no comment data
         return {
-          comments: 'No comments found for this article',
+          comments: 'No comments found for this article'
         };
       } else {
         return {
-          comments,
+          comments
         };
       }
     });
@@ -40,7 +40,7 @@ const insertCommentByArticleId = (articleId, { username, body }) => {
     .returning('*')
     .then(([insertedComment]) => {
       return {
-        comment: insertedComment,
+        comment: insertedComment
       };
     });
 };
@@ -58,7 +58,7 @@ const updateCommentVote = (commentId, voteUpdate) => {
         return Promise.reject({ status: 404, msg: 'Comment not found' });
 
       return {
-        comment: updatedComment,
+        comment: updatedComment
       };
     });
 };
@@ -79,5 +79,5 @@ module.exports = {
   fetchCommentsByArticleId,
   insertCommentByArticleId,
   updateCommentVote,
-  removeCommentById,
+  removeCommentById
 };
