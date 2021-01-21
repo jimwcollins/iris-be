@@ -10,13 +10,13 @@ const fetchAllTopics = () => {
 
 const fetchTopicBySlug = (topicSlug) => {
   return connection('topics')
-    .select('slug', 'description')
-    .where('topics.slug', '=', topicSlug)
-    .then(([topic]) => {
-      if (!topic)
-        return Promise.reject({ status: 404, msg: 'Topic not found' });
+    .select('*')
+    .where('topics.slug', 'LIKE', `%${topicSlug}%`)
+    .then((topics) => {
+      if (!topics)
+        return Promise.reject({ status: 404, msg: 'No topics found' });
 
-      return { topic };
+      return { topics };
     });
 };
 
