@@ -10,7 +10,7 @@ const getAllArticles = (req, res, next) => {
   // Set limit and offset
   let limit = Number(req.query.limit);
   const page = Number(req.query.p);
-  if (Number.isNaN(limit)) limit = 10;
+  if (Number.isNaN(limit)) limit = 50;
   const offset = page ? (page - 1) * limit : 0;
 
   fetchAllArticles(req.query)
