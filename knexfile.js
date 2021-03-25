@@ -16,6 +16,7 @@ const customConfig = {
     connection: {
       connectionString: DB_URL,
       ssl: {
+        require: true,
         rejectUnauthorized: false,
       },
     },
